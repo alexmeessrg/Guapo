@@ -1,0 +1,33 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alice Johnson",
+      "email": "alice@example.com",
+      "age": 28,
+      "is_active": true,
+      "roles": ["admin", "editor"]
+    },
+    {
+      "id": 2,
+      "name": "Bob Smith",
+      "email": "bob@example.com",
+      "age": 35,
+      "is_active": false,
+      "roles": ["viewer"]
+    },
+    {
+      "id": 3,
+      "name": "Charlie Davis",
+      "email": "charlie@example.com",
+      "age": 22,
+      "is_active": true,
+      "roles": ["editor", "viewer"]
+    }
+  ],
+  "settings": {
+    "theme": "dark",
+    "notifications": true,
+    "language": "en-US"
+  }
+}
