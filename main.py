@@ -13,8 +13,8 @@ License: MIT
 
 
 # Local application imports
-from lib.fetcher import *
-from lib.wrangler import *
+from src.fetcher import *
+from src.wrangler import *
 
 
 
