@@ -15,14 +15,19 @@ License: MIT
 # Local application imports
 from src.fetcher import *
 from src.wrangler import *
+from src.gui import *
 
 
 
 
 def main():
     #Initialization 
+    app = QApplication(sys.argv) #initializes the application with command line support
+    window = MainWindow()
+    window.show()
     
-
+    
+    
     #Pre-GUI test
     print("xxxxxxx Doing tests here xxxxxxxx")
     raw_data, error = Fetcher.read_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
@@ -30,6 +35,7 @@ def main():
         header, delimiter, error = Wrangler.handle_tabulated(raw_data)
         if not (error):
             print (header)
+            window.set_headers(header)
         else:
             print(error)
     else:
@@ -47,8 +53,9 @@ def main():
 
 
     #data visualization scripts
+    
 
-    pass
+    sys.exit(app.exec()) #putting this here so it won't block the rest of the commands.
 
 
 
