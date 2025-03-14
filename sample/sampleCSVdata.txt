@@ -18,4 +18,4 @@ Russia,17098242,145912025,Moscow
 South Africa,1219090,59308690,Pretoria
 Spain,505992,47351567,Madrid
 United Kingdom,243610,67215293,London
-United States,9833517,331893745,Washington, D.C.
+United States,9833517,331893745,Washington/D.C.

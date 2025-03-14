@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
             button_layout.addWidget(button)
         
         # === Spreadsheet (QTableWidget) ===
-        self.table = QTableWidget(5, 3)  # 5 rows, 3 columns
+        self.table = QTableWidget(20, 4)  # 5 rows, 3 columns
         
         
         # Fill the table with sample data
@@ -83,4 +83,8 @@ class MainWindow(QMainWindow):
     
     def set_headers(self,headers):
         self.table.setHorizontalHeaderLabels(headers)
-        
+
+    def set_data_table(self,data):
+        for row, rowData in enumerate(data):
+            for col, value in enumerate(rowData):
+                self.table.setItem(row, col, QTableWidgetItem(str(value)))

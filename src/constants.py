@@ -8,4 +8,5 @@ License: MIT
 
 
 #Pattern Matching Constants
-COMMON_DELIMITERS = [',',';',':',' ','\t','-','|']
+COMMON_DELIMITERS = [',',';',':',' ','\t','-','|'] #delimiters format list used when trying to auto-detecting them
+DATA_TYPE_SAMPLE_SIZE = 10 #the maximum amount of data that will be sampled when trying to autodetect data types

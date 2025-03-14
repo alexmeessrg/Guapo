@@ -32,10 +32,12 @@ def main():
     print("xxxxxxx Doing tests here xxxxxxxx")
     raw_data, error = Fetcher.read_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
     if not (error):
-        header, delimiter, error = Wrangler.handle_tabulated(raw_data)
+        data, header, delimiter, error = Wrangler.handle_tabulated(raw_data)
         if not (error):
-            print (header)
+            #print (header)
             window.set_headers(header)
+            print(data)
+            window.set_data_table(data)
         else:
             print(error)
     else:

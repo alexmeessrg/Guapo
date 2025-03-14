@@ -1,1 +1,2 @@
 PyQt6==6.8.1 #Note: must be manually installed
+Pandas==2.2.3 #Note: must be manually installed
