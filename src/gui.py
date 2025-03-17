@@ -17,6 +17,19 @@ from PyQt6.QtCore import Qt, QSize
 # Local application imports
 from . import styles
 
+def _CreateButton(name='',fixedsize=[52,52],iconpath=None,iconsize=[48,48],tooltip=None) -> QPushButton:
+        button = QPushButton(name)
+        
+        if (tooltip):
+            button.setToolTip(tooltip)
+
+        if (iconpath):
+            button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), iconpath)))
+            button.setIconSize(QSize(iconsize[0],iconsize[1]))
+        
+        button.setFixedSize(fixedsize[0], fixedsize[1])
+        return button
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -65,16 +78,32 @@ class MainWindow(QMainWindow):
             button.setFixedSize(52,52)
             button_layout.addWidget(button)
         
-        # === Set of tools (to the left) === 
+        # === Set of string tools  === 
         tools_layout = QVBoxLayout()
         tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        for name in buttons:
-            button = QPushButton()
-            button.setToolTip(name)
-            button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "../assets/icons/icon_data.png")))
-            button.setIconSize(QSize(48,48))
-            button.setFixedSize(192,52)
-            tools_layout.addWidget(button)
+        
+        
+        # Button for String Operations
+        self.b_str_blocked = _CreateButton('Blocked List',[192,52],"../assets/icons/icon_data.png",[48,48],'Replaces selected words with ****.')
+        self.b_str_dictionary = _CreateButton('Dictionary',[192,52],"../assets/icons/icon_data.png",[48,48],'Replaces a list of words by another.')
+        self.b_str_statistics = _CreateButton('String Statistics',[192,52],"../assets/icons/icon_data.png",[48,48],'Basic statistics for string data.')
+        self.b_str_capitalize = _CreateButton('Capitalize',[192,52],"../assets/icons/icon_data.png",[48,48],'Sets capitalization rule.')
+        self.b_str_duplicates = _CreateButton('Duplicates',[192,52],"../assets/icons/icon_data.png",[48,48],'Identify duplicate data.')
+        self.b_str_whitespaces = _CreateButton('White Spaces',[192,52],"../assets/icons/icon_data.png",[48,48],'Handles whitespace cleaning.')
+        self.b_str_breakcolumn = _CreateButton('Split on Delimiter',[192,52],"../assets/icons/icon_data.png",[48,48],'Split a data column in 2 or more, acoording to specified delimiter.')
+
+
+        tools_layout.addWidget(self.b_str_blocked)
+        tools_layout.addWidget(self.b_str_dictionary)
+        tools_layout.addWidget(self.b_str_statistics)
+        tools_layout.addWidget(self.b_str_capitalize)
+        tools_layout.addWidget(self.b_str_duplicates)
+        tools_layout.addWidget(self.b_str_whitespaces)
+        tools_layout.addWidget(self.b_str_breakcolumn)
+
+
+
+
 
 
         # === Spreadsheet (QTableWidget) ===
@@ -102,6 +131,13 @@ class MainWindow(QMainWindow):
 
         # === Apply StyleSheet ===
         self.setStyleSheet(styles.GUIStyles.style_sheet)
+
+    def set_event_handlers(self, target_button, function): #use this to add main.py functions to the GUI buttons.
+        match target_button:
+            case "b_str_blocked":
+                self.b_str_blocked.clicked.connect(function)
+            case "b_str_whitespace":
+                self.b_str_whitespaces.clicked(function)
     
     def set_headers(self,headers):
         self.table.setHorizontalHeaderLabels(headers)

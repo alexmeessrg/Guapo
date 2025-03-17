@@ -8,7 +8,7 @@ License: MIT
 # Standard library imports
 import math
 from typing import Tuple
-from enum import Enum
+
 
 # Third-party imports
 import pandas as pd
@@ -16,18 +16,9 @@ import pandas as pd
 # Local application imports
 from . import constants
 
-class DataType(Enum):
-    TEXT = 1 #plain text
-    INTEGER = 2 #integer values
-    FLOAT = 3 #float values
-    DATE = 4 #data values (needs special formating info)
-    TIME = 5 #not referenced time (not tied to date)
-    GEOSPATIAL = 6 #LAT/LONG, LAT, LON, degrees, UTM
-    VECTOR = 7 #vectors, position/velocity. Not necessarily tied to frame of reference
-    DICTIONARY = 7 #a JSON file, XML
-    BOOLEAN = 9 #TRUE/FALSE
 
 
+    
 
 class Wrangler:
     @staticmethod
@@ -71,7 +62,7 @@ class Wrangler:
                     return header,'',None
     
     @staticmethod
-    def break_tabulated(raw_data,delimiter,has_header=True,header=[]):
+    def break_tabulated(raw_data,delimiter,has_header=True,header=[]) -> Tuple [pd.DataFrame, str, bool, str]: #the converted data frame, the delimiter, has_header, possible errors
         col_count = len(raw_data[0].split(delimiter)) #there could be a mistake in the header/first line making this number unreliable
 
         if (has_header):
@@ -106,7 +97,7 @@ class Wrangler:
                     df[col_name] = df[col_name].astype('float64') #change data type of current column to int64
         
         print (df.dtypes)
-        return df.values.tolist(), header, delimiter, has_header
+        return df, delimiter, has_header, None
 
 
 
@@ -135,20 +126,20 @@ class Wrangler:
 
 
     @staticmethod
-    def handle_tabulated(raw_data,delimiter=None,has_header=True) -> Tuple [list, list, str, str]: #the actual array, header array, delimiter used, possible errors
+    def handle_tabulated(raw_data,delimiter=None,has_header=True) -> Tuple [pd.DataFrame, str, bool, str]: #the actual array, delimiter used, possible errors
 
         #for line in raw_data:
         #    print(line)
 
         if (has_header):
             if (len(raw_data)<2): #if you exclude the header there is no data.
-                return None, '', "Data doesn't have enough lines when excluding headers"
+                return None, '', True, "Data doesn't have enough lines when excluding headers"
             else:
                 header = raw_data[0]
                 sample_data = raw_data[0:min(4,len(raw_data)-1)] #tries to sample 4 lines or less if data is small
                 header, delimiter, error = Wrangler.header_comprehension(header, sample_data, delimiter)
-                data, header, delimiter, has_header = Wrangler.break_tabulated(raw_data,delimiter,has_header,header)
-                return data, header, delimiter, error
+                data, delimiter, has_header, error = Wrangler.break_tabulated(raw_data,delimiter,has_header,header)
+                return data, delimiter, has_header, error
             
 
 
