@@ -62,6 +62,7 @@ def main():
         thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data)
         baction_str_whitespace(thisdata, 0, 'doubles')
         baction_str_capitalization(thisdata, 0, 'all')
+        thisdata.search_result(0,'S')
         #window.set_headers([''])
         #print(data)
         window.set_data_table(thisdata.data.values.tolist())

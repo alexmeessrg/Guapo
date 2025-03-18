@@ -119,16 +119,27 @@ class TableFormat(DataStructure):
             return None #no errors
         return 'Error: not a text column.'
 
-     # Method to get string statistics !!!!!!!!!!!!!!!!todo: continue this!!!!!!!!!!!!
-    def word_statistics(self, c_index=0) -> str: #the result string (None if OK)
+    # Method to get string statistics
+    def word_statistics(self, c_index=0) -> Tuple [set, list, str]: #the result string (None if OK)
         if (self.dtype[c_index]==DataType.TEXT): #if column is a string column
-            c_name = self.data.columns[c_index]
-            word_count = {}
-            for word in self.data[c_name].values:
-                sum(self.data[c_name].str.findall(word, regex=True))
-            return None #no errors
-        return 'Error: not a text column.'   
-    
+            c_name = self.data.columns[c_index] #name of the column 
+            unique_words = set(self.data[c_name].values) #the unique words per column
+            word_count = list() #the total per unique word
+            for word in unique_words:
+                hits = self.data[c_name].str.findall(word)
+                word_count.append(sum(len(hit) for hit in hits))
+            return unique_words, word_count, None #no errors
+        return None, None, 'Error: not a text column.'  
+     
+    # Method to get search results
+    def search_result(self, c_index=0, search_string='') -> Tuple [list, str]: #the table filter index, the result string (None if OK)
+        if (self.dtype[c_index]==DataType.TEXT): #if column is a string column
+            c_name = self.data.columns[c_index] #name of the column 
+            hits = self.data[c_name].str.contains(search_string, case=False)
+            found_indices = hits.index[hits].to_list()
+            print(found_indices)
+            return found_indices, None #no errors
+        return None, 'Error: not a text column.'       
 
 
  
