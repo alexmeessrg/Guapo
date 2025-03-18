@@ -10,7 +10,7 @@ import sys
 import os
 
 # Third-party imports
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, QStatusBar
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt, QSize
 
@@ -37,13 +37,23 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Guapo Data Handler")
-        self.setGeometry(100, 100, 600, 400)
-        self.showMaximized()
+        self.setGeometry(100, 100, 900, 600)
+
+
 
         # Main widget and layout
         central_widget = QWidget()
+        main_layout = QHBoxLayout()
+        central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout()  # Horizontal stack
+
+        self.status_bar = self.statusBar() #QStatusBar(self)
+        self.setStatusBar = self.status_bar
+        self.status_bar.show()
+        self.status_bar.showMessage("Ready")
+
+
+
 
         # Menu Bar
         menubar = self.menuBar()
@@ -64,6 +74,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save_action)
         file_menu.addSeparator()  # Adds a separator line
         file_menu.addAction(exit_action)
+
 
         # === Vertical Stack of Buttons ===
         self.main_group = QFrame() #a frame to support additional stylings
@@ -90,17 +101,6 @@ class MainWindow(QMainWindow):
         tools_layout = QVBoxLayout()
         tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-
-
-
-
-
-
-
-
-
-        
-        
         # Button for String Operations
         self.b_str_blocked = _CreateButton('Blocked List',[192,52],None,[48,48],'Replaces selected words with ****.')
         self.b_str_dictionary = _CreateButton('Dictionary',[192,52],None,[48,48],'Replaces a list of words by another.')
@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):
         separator.setStyleSheet("background-color: #5A5A5A;")  # Optional: Custom color
         separator.setFixedHeight(2)
 
-
         tools_layout.addWidget(QLabel('String Operators'))
         tools_layout.addWidget(separator)
         tools_layout.addWidget(self.b_str_whitespaces)
@@ -127,9 +126,17 @@ class MainWindow(QMainWindow):
         tools_layout.addWidget(self.b_str_breakcolumn)
         tools_layout.addWidget(self.b_str_statistics)
 
+
         # === Spreadsheet (QTableWidget) ===
-        self.table = QTableWidget(20, 4)  # 5 rows, 3 columns
-        
+        self.table = QTableWidget(20, 4)  # 5 rows, 3 columns  
+        self.table.setSelectionMode(self.table.SelectionMode.ContiguousSelection)  # Allow multiple selections
+        self.table.setSelectionBehavior(self.table.SelectionBehavior.SelectColumns)  # Select full columns
+        self.table.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        for col in range(self.table.columnCount()):
+            self.table.setColumnWidth(col, 100)  # Set fixed width
+
+        self.table.horizontalHeader().sectionClicked.connect(self.on_column_selected)
         
         # Fill the table with sample data
         data = [
@@ -143,6 +150,17 @@ class MainWindow(QMainWindow):
             for col, value in enumerate(rowData):
                 self.table.setItem(row, col, QTableWidgetItem(value))
         
+        # === Log Window ====
+        self.log_window = QTextEdit(self)
+        self.log_window.setReadOnly(True)
+        self.log_window.setMaximumWidth(200)
+        html_content = """
+        <div>['Country']=> <span style="color: gray;">Capitalize('all')</span></div><div>['Country']=> <span style="color: gray;">Whitespace remove('double')</span></div><div>['Area']=> <span style="color: gray;">Numeric scale('0.001')</span></div>
+        """          
+        self.log_window.setText(html_content)
+
+
+
         # ==== Tab Switcher ====
         self.side_tab = QTabWidget()
         self.side_tab.setTabPosition(QTabWidget.TabPosition.West)
@@ -157,6 +175,7 @@ class MainWindow(QMainWindow):
         #tab2_layout.addWidget(QLabel("Cleaning"))
         tab2_layout.addLayout(tools_layout)
         tab2_layout.addWidget(self.table)
+        tab2_layout.addWidget(self.log_window)
         tab2.setLayout(tab2_layout)
 
         tab3 = QWidget()
@@ -174,29 +193,41 @@ class MainWindow(QMainWindow):
         self.side_tab.addTab(tab3, "Analysis")
         self.side_tab.addTab(tab4, "Visualization")
         
-        
-        # === Add Widgets to Main Layout ===
-        #main_layout.addLayout(self.button_layout)  # Vertical button stack (left)
-        #main_layout.addWidget(self.main_group)
-        main_layout.addWidget(self.side_tab)
-        #main_layout.addLayout(tools_layout)
-        #main_layout.addWidget(self.table)          # Spreadsheet (right)
 
-        central_widget.setLayout(main_layout)
+
+        # === Add Widgets to Main Layout ===       
+        main_layout.addWidget(self.side_tab)
+
+
+        
+        #Status Bar
 
         
 
         # === Apply StyleSheet ===
         self.setStyleSheet(styles.GUIStyles.style_sheet)
-       # self.side_tab.setStyleSheet(styles.GUIStyles.dark_grey_style)
-        
 
-    def set_event_handlers(self, target_button, function): #use this to add main.py functions to the GUI buttons.
-        match target_button:
+    def on_column_selected(self, column: int):
+        """Triggered when a column header is clicked."""
+        header_item = self.table.horizontalHeaderItem(column)
+        if (header_item):
+            column_name = header_item.text()
+            self.status_bar.showMessage(f"Selected Column {column} - '{column_name}'")
+            self.status_bar.show()
+            self.table.selectColumn(column)  # Ensure the column gets fully selected
+            print(self.log_window.toPlainText())
+            self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
+            
+
+
+    def set_event_handlers(self, target, function): #use this to add main.py functions to the GUI buttons.
+        match target:
+            case "table":
+                self.table.selectionModel().selectionChanged.connect(function) #add the 'normal' event handler and additionally another one.
             case "b_str_blocked":
                 self.b_str_blocked.clicked.connect(function)
             case "b_str_whitespace":
-                self.b_str_whitespaces.clicked(function)
+                self.b_str_whitespaces.clicked.connect(function)
     
     def set_headers(self,headers):
         self.table.setHorizontalHeaderLabels(headers)

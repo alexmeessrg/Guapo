@@ -63,9 +63,11 @@ def main():
         baction_str_whitespace(thisdata, 0, 'doubles')
         baction_str_capitalization(thisdata, 0, 'all')
         thisdata.search_result(0,'S')
-        #window.set_headers([''])
+        window.set_headers(['Country','Area','Population','Capital'])
         #print(data)
+        print("Start setting table")
         window.set_data_table(thisdata.data.values.tolist())
+        print("End setting table")
     else:
         print(error)
     
