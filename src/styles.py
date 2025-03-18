@@ -67,7 +67,7 @@ QHeaderView::section {
 }
 /* === QPushButton (Modern Buttons) === */
 QPushButton {
-    background: linear-gradient(to bottom, #1F618D, #154360);
+    background: rgba(128, 128, 128, 16);;
     color: white;
     border: none;
     padding: 10px 15px;

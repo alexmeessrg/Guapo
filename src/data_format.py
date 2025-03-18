@@ -139,9 +139,4 @@ class TableFormat(DataStructure):
             found_indices = hits.index[hits].to_list()
             print(found_indices)
             return found_indices, None #no errors
-        return None, 'Error: not a text column.'       
-
-
- 
-
-
+        return None, 'Error: not a text column.'
