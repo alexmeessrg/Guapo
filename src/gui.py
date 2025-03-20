@@ -10,10 +10,13 @@ import sys
 import os
 
 # Third-party imports
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, QStatusBar
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea
+from PyQt6.QtGui import QAction, QIcon, QPalette, QColor
 from PyQt6.QtCore import Qt, QSize
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 # Local application imports
 from . import styles
 
@@ -107,8 +110,8 @@ class MainWindow(QMainWindow):
         
         # === DATA CLEANING TAB WIDGETS ===
         # === STRING TOOLS  === 
-        tools_layout = QVBoxLayout()
-        tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.str_tools_layout = QVBoxLayout()
+        self.str_tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         # Button for String Operations
         self.b_str_blocked = _CreateButton('Blocked List',[192,52],None,[48,48],'Replaces selected words with ****.')
         self.b_str_dictionary = _CreateButton('Dictionary',[192,52],None,[48,48],'Replaces a list of words by another.')
@@ -118,27 +121,107 @@ class MainWindow(QMainWindow):
         self.b_str_whitespaces = _CreateButton('White Spaces',[192,52],None,[48,48],'Handles whitespace cleaning.')
         self.b_str_breakcolumn = _CreateButton('Split on Delimiter',[192,52],None,[48,48],'Split a data column in 2 or more, acoording to specified delimiter.')
         
+        #Combo boxes
+        #Capitalize
+        self.cb_str_combo1 = QComboBox()
+        self.cb_str_combo1.addItems(['ALL CAPS','Each Word','First word','lowercase','iNVERT'])
+        self.cb_str_combo1.setCurrentIndex(0)
+
+        #White spaces
+        self.cb_str_combo2 = QComboBox()
+        self.cb_str_combo2.addItems(['Trailing','Leading','Leading+Trailing','Double space','All the above'])
+        self.cb_str_combo2.setCurrentIndex(0)
+        
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
         separator.setStyleSheet("background-color: #5A5A5A;")  # Optional: Custom color
         separator.setFixedHeight(2)
 
-        tools_layout.addWidget(QLabel('String Operators'))
-        tools_layout.addWidget(separator)
-        tools_layout.addWidget(self.b_str_whitespaces)
-        tools_layout.addWidget(self.b_str_capitalize)
-        tools_layout.addWidget(self.b_str_duplicates)
-        tools_layout.addWidget(self.b_str_dictionary)   
-        tools_layout.addWidget(self.b_str_blocked)   
-        tools_layout.addWidget(self.b_str_breakcolumn)
-        tools_layout.addWidget(self.b_str_statistics)
+        self.str_tools_layout.addWidget(QLabel('String Operators'))
+        self.str_tools_layout.addWidget(separator)
+        self.str_tools_layout.addWidget(self.b_str_whitespaces)
+        self.str_tools_layout.addWidget(self.cb_str_combo2)
+        self.str_tools_layout.addWidget(self.b_str_capitalize)
+        self.str_tools_layout.addWidget(self.cb_str_combo1)
+        self.str_tools_layout.addWidget(self.b_str_duplicates)
+        self.str_tools_layout.addWidget(self.b_str_dictionary)   
+        self.str_tools_layout.addWidget(self.b_str_blocked)   
+        self.str_tools_layout.addWidget(self.b_str_breakcolumn)
+        self.str_tools_layout.addWidget(self.b_str_statistics)
+
+        # === NUMERIC DATA TOOLS === 
+        # NUMERIC OPERATIONS TO CODE: OFFSET(SUBTRACT/ADD), SCALE (MULTIPLY/DIVIDE), LOGARITMIC SCALE, CLAMP (SET MIN/MAX), CONVERT (INT=>FLOAT OR FLOT=>INT)
+        # MISSING VALUES RULES: LOCAL AVERAGE, GLOBAL AVERAGE, NaN, FIXED VALUE
+        # OUTLIER HANDLING RULES: CLAMP BEYOND RANGE (FIXED RANGES, STD RANGES), CHECK MAX DELTA
+        # STATISTICS: MEAN, MEDIAN, MODE, STANDARD DEVIATION, SKEWNESS, KURTOSIS, LENGTH
+        
+        self.num_tools_layout = QVBoxLayout()
+        self.num_tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        
+        #Buttons for numeric operations
+        self.b_num_offset = _CreateButton('Offset Values',[192,52],None,[48,48],'Add/subtract to values. Does NOT change numeric type (INT/FLOAT). INT will be round to nearest integer.')
+        self.b_num_scale = _CreateButton('Scale Values',[192,52],None,[48,48],'Multiply values by this amount. Does NOT change numeric type (INT/FLOAT). INT will be round to nearest integer.')
+        self.b_num_logscale = _CreateButton('Log Scale Values',[192,52],None,[48,48],'Transform to the LOG10 equivalent. Does NOT change numeric type (INT/FLOAT). INT will be round to nearest integer.')
+        self.b_num_clamp = _CreateButton('Clamp Values',[192,52],None,[48,48],'Clamp Values to MIN/MAX. Does NOT change numeric type (INT/FLOAT). INT will be round to nearest integer.')
+        self.b_num_convert_to_float = _CreateButton('Int=>Float',[192,52],None,[48,48],'Convert data type from integer to float (decimal) values.')
+        self.b_num_convert_to_integer = _CreateButton('Float=>Int',[192,52],None,[48,48],'Convert data type from float (decimal) to integer. INT will be round to nearest integer.')
+
+        #Add buttons to layout
+        self.num_tools_layout.addWidget(QLabel('Numeric Data Operators'))
+        self.num_tools_layout.addWidget(separator)
+        self.num_tools_layout.addWidget(self.b_num_offset)
+        self.num_tools_layout.addWidget(self.b_num_scale)
+        self.num_tools_layout.addWidget(self.b_num_logscale)
+        self.num_tools_layout.addWidget(self.b_num_clamp)
+        self.num_tools_layout.addWidget(self.b_num_convert_to_float)
+        self.num_tools_layout.addWidget(self.b_num_convert_to_integer)
+
+        
+
+
+        # === DATE DATA TOOLS ===
+        # DATE OPERATIONS: CHANGE DATA FORMAT, OFFSET DAYS (SUBTRACT/ADD)
+        # MISSING VALUES RULES: FILL DATE GAP, FIXED VALUE
+
+
+        # === TIME DATA (short or non day-reference time) TOOLS ===
+
+
+
+        # === GEOSPATIAL DATA TOOLS ===
+
+
+        # === BOOLEAN DATA TOOLS ===
+        
+
+        # === Cleaning Tools Tab Switcher === ADD ALL CATEGORIES OF CLEANING TOOLS HERE
+        self.clean_tools_tab = QStackedWidget() #this tab switcher will change active tab depending on what table column is active, so it needs to accesible outside the class.
+
+        # individual tools tab layout
+        clean_tab1 = QWidget() #on this tab will be the numeric data cleaning tools
+        clean_tab1.setLayout(self.num_tools_layout)
+        
+        clean_tab2 = QWidget() #on this tab will be the numeric data cleaning tools
+        clean_tab2.setLayout(self.str_tools_layout)
+
+        # ... add more here
+
+        #all all subtabs to tabwidget
+        self.clean_tools_tab.addWidget(clean_tab1)
+        self.clean_tools_tab.addWidget(clean_tab2)
+        self.clean_tools_tab.setMaximumWidth(200)
+        self.clean_tools_tab.setCurrentIndex(1) #TODO: just for quick testing
+        # ... add more here
+
+        
 
         # === SPREADSHEET (TABLE FOR DATA CLEANING) ===
         self.table = QTableWidget(20, 4)  # ROWS X COLUMNS  
         self.table.setSelectionMode(self.table.SelectionMode.ContiguousSelection)  # Allow multiple selections
         self.table.setSelectionBehavior(self.table.SelectionBehavior.SelectColumns)  # Select full columns
         self.table.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().sectionClicked.connect(self.on_column_selected) # event for column selected
 
         for col in range(self.table.columnCount()):
@@ -148,12 +231,32 @@ class MainWindow(QMainWindow):
         self.log_window = QTextEdit(self)
         self.log_window.setReadOnly(True)
         self.log_window.setMaximumWidth(200)
-        #set initial values for activity log window -> not necessary later
+        #set initial values for activity log window -> NOT NECESSARY LATER
         html_content = """
         <div>['Country']=> <span style="color: gray;">Capitalize('all')</span></div><div>['Country']=> <span style="color: gray;">Whitespace remove('double')</span></div><div>['Area']=> <span style="color: gray;">Numeric scale('0.001')</span></div>
         """          
         self.log_window.setText(html_content)
 
+
+        # VISUALIZATION TOOLS
+        
+
+        # Graph Window
+        self.canvas = FigureCanvas(plt.figure(figsize=(6,4)))
+
+        #Data Columns Selector
+        # Scroll Area Setup
+        self.dataset_scroll_area = QScrollArea(self)
+        self.dataset_scroll_area.setWidgetResizable(True)
+        self.dataset_scroll_area.setMaximumWidth(200)
+        # Main container widget
+        self.dataset_container = QWidget()       
+        self.current_data_list = QVBoxLayout()
+        self.dataset_scroll_area.setWidget(self.dataset_container)
+        self.dataset_container.setLayout(self.current_data_list)
+
+        for x in range(15):
+            self.populate_dataset_selection(f'Button: {x}')
 
 
         # ==== TAB SWITCHER ====
@@ -167,18 +270,20 @@ class MainWindow(QMainWindow):
 
         tab2 = QWidget() #on this tab will be all the widgets for data cleaning
         tab2_layout = QHBoxLayout()
-        tab2_layout.addLayout(tools_layout)
+        tab2_layout.addWidget(self.clean_tools_tab) #this includes tools tab for each individual type of data.
         tab2_layout.addWidget(self.table) #spreadsheet for data
         tab2_layout.addWidget(self.log_window) #operations log window
         tab2.setLayout(tab2_layout)
 
         tab3 = QWidget() #on this tab will be all the widgets for analysis
-        tab3_layout = QVBoxLayout()
-        tab3_layout.addWidget(QLabel("Analysis"))
+        tab3_layout = QHBoxLayout()
+        tab3_layout.addWidget(self.dataset_scroll_area) #the selector for columns using the current data set.
+        tab3_layout.addWidget(self.canvas)
+        self.plot_seaborn() #actually draw the graph #TODO: remove later
         tab3.setLayout(tab3_layout)
 
         tab4 = QWidget() #on this tab will all the widgets for visualization
-        tab4_layout = QVBoxLayout()
+        tab4_layout = QHBoxLayout()
         tab4_layout.addWidget(QLabel("Visualization"))
         tab4.setLayout(tab4_layout)
 
@@ -204,8 +309,8 @@ class MainWindow(QMainWindow):
             column_name = header_item.text()
             self.status_bar.showMessage(f"Selected Column {column} - '{column_name}'")
             self.status_bar.show()
-            print(self.log_window.toPlainText())
             self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
+            self.clean_tools_tab.setCurrentIndex(int(column/2)) #TODO: JUST FOR TESTING REMOVE
 
     
     # this methods will be called from outside the class to update visuals and data     
@@ -225,3 +330,23 @@ class MainWindow(QMainWindow):
         for row, rowData in enumerate(data):
             for col, value in enumerate(rowData):
                 self.table.setItem(row, col, QTableWidgetItem(str(value)))
+
+    def plot_seaborn(self):
+        """Generate a Seaborn plot and display it in the PyQt6 window."""
+        sns.set_style("darkgrid")
+
+        # Load example dataset
+        tips = sns.load_dataset("tips")
+
+        # Create a Matplotlib figure
+        fig, ax = plt.subplots(figsize=(6,4))
+        sns.scatterplot(x="total_bill", y="tip", data=tips, ax=ax)
+
+        # Draw the plot on the canvas
+        self.canvas.figure = fig
+        self.canvas.draw()
+
+    def populate_dataset_selection(self,item_name): #use to create the list of data assets 
+        self.current_data_list.addWidget(QPushButton(item_name))
+
+        

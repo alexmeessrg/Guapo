@@ -44,6 +44,7 @@ QTabBar::tab:selected {
 /* === QTableWidget (Modern Table) === */
 QTableWidget {
     background: #2C3E50;
+    alternate-background-color: #2685a5;
     border: 1px solid #34495E;
     gridline-color: #4A637D;
     selection-background-color: #1F618D;
@@ -54,6 +55,7 @@ QTableWidget {
 QTableWidget::item {
     color: cyan;
     font-size: 8px;
+
 }
 QHeaderView::section {
     background: #34495E;
