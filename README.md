@@ -45,6 +45,8 @@ These dependencies are **not included** in this repository.
 
 1. [PyQt6](https://pypi.org/project/PyQt6/)
 2. [Pandas](https://pandas.pydata.org/)
+3. [MatPlotLib](https://matplotlib.org/)
+4. [Seaborn](https://seaborn.pydata.org/)
 
 Please download and install these manually before running the project.
 

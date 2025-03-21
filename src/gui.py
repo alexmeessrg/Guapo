@@ -39,7 +39,8 @@ class MainWindow(QMainWindow):
             button.setFixedSize(fixedsize[0], fixedsize[1])
             return button
         
-        
+        # Class Variables
+        self.dataset_column_index = int(-1) #which column was selected on click
         
         
         
@@ -306,11 +307,12 @@ class MainWindow(QMainWindow):
         header_item = self.table.horizontalHeaderItem(column)
         if (header_item):
             self.table.selectColumn(column)  # Ensure the column gets fully selected
+            self.dataset_column_index = column
             column_name = header_item.text()
             self.status_bar.showMessage(f"Selected Column {column} - '{column_name}'")
             self.status_bar.show()
             self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
-            self.clean_tools_tab.setCurrentIndex(int(column/2)) #TODO: JUST FOR TESTING REMOVE
+            self.clean_tools_tab.setCurrentIndex(1) #TODO: JUST FOR TESTING REMOVE
 
     
     # this methods will be called from outside the class to update visuals and data     
@@ -322,6 +324,11 @@ class MainWindow(QMainWindow):
                 self.b_str_blocked.clicked.connect(function)
             case "b_str_whitespace":
                 self.b_str_whitespaces.clicked.connect(function)
+    
+    def click_event_handlers(self, target, function): #use this to add main.py functions to the GUI buttons.
+        target.clicked.connect(function)
+
+
     
     def set_headers(self,headers): #set the headers for a spreadsheet
         self.table.setHorizontalHeaderLabels(headers)
@@ -340,13 +347,25 @@ class MainWindow(QMainWindow):
 
         # Create a Matplotlib figure
         fig, ax = plt.subplots(figsize=(6,4))
+        ax.set_title("Custom Title")
+        ax.set_ylabel("Y-axis Label")
         sns.scatterplot(x="total_bill", y="tip", data=tips, ax=ax)
 
         # Draw the plot on the canvas
         self.canvas.figure = fig
         self.canvas.draw()
 
-    def populate_dataset_selection(self,item_name): #use to create the list of data assets 
+    def populate_dataset_selection(self,item_name): #use to create the list of data assets
         self.current_data_list.addWidget(QPushButton(item_name))
+
+    def clear_layout(self, layout): #clear layouts recursively
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+            else:
+                self.clear_layout(item.layout())
+                    
 
         

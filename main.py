@@ -31,43 +31,51 @@ def open_CSV() -> Tuple [pd.DataFrame,str,str]:
         print(error)
         return None, None, None, error
 
-#Actions for the Buttons    
-def baction_str_whitespace(datastructure=TableFormat(), index=-1, option='trailing'):
-    if not (index<0):
-        datastructure.remove_whitespace(index, option)
 
-def baction_str_capitalization(datastructure=TableFormat(), index=-1, option='all'):
-    if not (index<0):
-        datastructure.capitalization_rule(index, option)
-
-
-def printsomething():
-     print('Button Clicked')
 
 
 def main():
-    #Initialization 
+    # === WINDOW INITIALIZATION ===
     app = QApplication(sys.argv) #initializes the application with command line support
     window = MainWindow()
     window.show()
 
-    #add event handler to all buttons in the main window   
-    window.set_event_handlers('b_str_blocked',printsomething)
+    # === ACTIONS FOR GUI BUTTONS ===    
+    def baction_str_whitespace():
+        print("Remove Whitespace")
+        if not (window.dataset_column_index < 0):
+            thisdata.remove_whitespace(window.dataset_column_index,'doubles')
+            window.set_data_table(thisdata.data.values.tolist())
+            print(thisdata.data.iloc[:,window.dataset_column_index].to_list())
+
+    def baction_str_capitalization():
+        if not (window.dataset_column_index<0):
+            thisdata.capitalization_rule(window.dataset_column_index, 'all')
+            window.set_data_table(thisdata.data.values.tolist())
+
+    # == CONNECT TO APPROPRIATE GUI EVENTS  
+    window.b_str_whitespaces.clicked.connect(baction_str_whitespace)
+    window.b_str_capitalize.clicked.connect(baction_str_capitalization)
+    
+
+    
+    
     #Pre-GUI test
     print("xxxxxxx Doing tests here xxxxxxxx")
     
     data, delimiter, has_header, error = open_CSV()
+    
     if not (error):
-        #print (header)
+        #for testing TODO:remove
         thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data)
-        baction_str_whitespace(thisdata, 0, 'doubles')
-        baction_str_capitalization(thisdata, 0, 'all')
+
+
+
+
         thisdata.search_result(0,'S')
         window.set_headers(['Country','Area','Population','Capital'])
-        #print(data)
-        print("Start setting table")
         window.set_data_table(thisdata.data.values.tolist())
-        print("End setting table")
+
     else:
         print(error)
     
@@ -89,6 +97,11 @@ def main():
     
 
     sys.exit(app.exec()) #putting this here so it won't block the rest of the commands.
+
+
+    def printsomething():
+        print('Button Clicked')
+
 
 
 
