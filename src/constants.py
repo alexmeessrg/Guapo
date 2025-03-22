@@ -10,7 +10,7 @@ License: MIT
 #Pattern Matching Constants
 COMMON_DELIMITERS = [',',';',':',' ','\t','-','|'] #delimiters format list used when trying to auto-detecting them
 DATA_TYPE_SAMPLE_SIZE = 10 #the maximum amount of data that will be sampled when trying to autodetect data types
-WORLD_COUNTRIES = countries = {
+WORLD_COUNTRIES = {
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
     "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", 
     "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", 
@@ -35,4 +35,32 @@ WORLD_COUNTRIES = countries = {
     "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 } #to check for geographic data
 
+
+BLOCKED_WORD_LIST = {'bad word1', 'bad word 2', 'bad word 3'} #built in BLOCKED WORDS for testing
+COMMON_BLOCKED_WORD_BYPASSES = [
+    ["a", "@"], ["a", "4"], ["a", "∂"],
+    ["b", "8"], ["b", "|3"],
+    ["c", "("], ["c", "{"], ["c", "<"],
+    ["e", "3"], ["e", "€"],
+    ["g", "6"], ["g", "9"],
+    ["h", "#"], ["h", "|-|"],
+    ["i", "1"], ["i", "!"], ["i", "|"],
+    ["l", "1"], ["l", "|"],
+    ["o", "0"], ["o", "°"],
+    ["s", "$"], ["s", "5"],
+    ["t", "7"], ["t", "+"],
+    ["z", "2"]
+] #common intentional letter swaps to bypass blocked words.
+
+
+COMMON_DICTIONARY_REPLACEMENTS = ["docotor",  
+        "docter",  
+        "doctr",  
+        "dr.",    
+        "Dr..",  
+        "dr",   
+        "Dr,", 
+        "Dotor",  
+        "Docor",  
+        "Doktor"]
 

@@ -8,11 +8,14 @@ License: MIT
 # Standard library imports
 import sys
 import os
+from typing import Tuple
 
 # Third-party imports
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, 
+                             QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, 
+                             QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea, QFileDialog)
 from PyQt6.QtGui import QAction, QIcon, QPalette, QColor
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -25,7 +28,6 @@ from . import styles
 
 class MainWindow(QMainWindow):
     def __init__(self):
-    
         super().__init__()
 
         # Method to create a new button (only called inside the class)
@@ -86,7 +88,7 @@ class MainWindow(QMainWindow):
         read_layout = QVBoxLayout()
         read_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-        # Buttons to Add / Delete Data Sets
+        # === ADD/DELETE DATA SET === (first tab)
         self.b_DS_open_tabulated = _CreateButton('Open Tabulated',[192,52],None,[48,48],'Opens CSV, TSV and tabulated data with other delimiters.')
         self.b_DS_open_JSON = _CreateButton('Open JSON',[192,52],None,[48,48],'Opens JSON structured files.')
         self.b_DS_open_SQLite = _CreateButton('Open SQLite',[192,52],None,[48,48],'Opens a local SQLite database.')
@@ -108,8 +110,8 @@ class MainWindow(QMainWindow):
 
         read_layout.addWidget(separator)
         read_layout.addWidget(self.b_DS_delete)
-        
-        # === DATA CLEANING TAB WIDGETS ===
+       
+        # === DATA CLEANING TAB WIDGETS === (second tab)
         # === STRING TOOLS  === 
         self.str_tools_layout = QVBoxLayout()
         self.str_tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
@@ -292,7 +294,6 @@ class MainWindow(QMainWindow):
         self.side_tab.addTab(tab2, "Cleaning")
         self.side_tab.addTab(tab3, "Analysis")
         self.side_tab.addTab(tab4, "Visualization")
-        
 
 
         # === Add Widgets to Main Layout ===       
@@ -301,7 +302,51 @@ class MainWindow(QMainWindow):
         # === Apply StyleSheet ===
         self.setStyleSheet(styles.GUIStyles.style_sheet)
 
-    
+    # Method to update the status bar
+    def update_statusbar(self, message=''):
+            if (message):
+                self.status_bar.showMessage(message)
+                self.status_bar.show()
+    """
+    === Method to update log window ===
+        = Message Type Conventions =
+        messagetype: 'str_capitalization'
+            message: [Column Name, Column Index, Capitalization Format]
+        messagetype: 'str_whitespace'
+            message: [Column Name, Column Index, Whitespace Removal Format]
+        messagetype: 'str_blocked'
+            message: xxxx
+        messagetype? 'str_dictionary
+
+    """
+    def add_to_log(self, message=[], messagetype=''): #message arguments and how to format it by type
+        formated_message = ''      
+        try:
+            match messagetype:
+                case 'str_capitalization':
+                    formated_message = f"""<div>Capitalization rule: <span style="color: gray;">Col: {message[0]}[{message[1]}] - Rule: {message[2]}</span></div>"""
+                case 'str_whitespace':
+                    formated_message = f"""<div>Whitespace removed: <span style="color: gray;">Col: {message[0]}[{message[1]}] - Rule: {message[2]}</span></div>"""
+                case 'str_blocked':
+                    formated_message = f"""<div>Blocked words removed <span style="color: gray;">Col: {message[0]}[{message[1]}] - Used Custom List?: {message[2]}</span></div>"""
+                case 'str_dictionary':
+                    formated_message = f"""<div>Dictionary words applied <span style="color: gray;">Col: {message[0]}[{message[1]}] - Number of Changes: {message[2]}</span></div>"""
+                case _:
+                    formated_message = '[ERROR] File "gui.py", Function "add_to_log", Bad message type.'
+                    raise ValueError
+
+            self.log_window.setHtml(f"""{self.log_window.toHtml()}{formated_message}""")
+
+        except IndexError:
+            formated_message = '[ERROR] File "gui.py", Function "add_to_log", Message index error.'
+        except ValueError:
+            formated_message = '[ERROR] File "gui.py", Function "add_to_log", Bad message log type error.'
+        except:
+            formated_message = '[ERROR] File "gui.py", Function "add_to_log", Unknown error.'
+            self.update_statusbar(formated_message)
+
+
+
     
     def on_column_selected(self, column: int): #this will trigger when a column header is selected, updating the bottom Status Bar and Activity log 
         header_item = self.table.horizontalHeaderItem(column)
@@ -314,6 +359,12 @@ class MainWindow(QMainWindow):
             self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
             self.clean_tools_tab.setCurrentIndex(1) #TODO: JUST FOR TESTING REMOVE
 
+    
+    def b_connect_whitespace(self,option='doubles'):
+        self.main.baction_str_whitespace()
+    
+    
+    
     
     # this methods will be called from outside the class to update visuals and data     
     def set_event_handlers(self, target, function): #use this to add main.py functions to the GUI buttons.
@@ -366,6 +417,9 @@ class MainWindow(QMainWindow):
                 widget.deleteLater()
             else:
                 self.clear_layout(item.layout())
+
+
+
                     
 
         
