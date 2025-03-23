@@ -13,22 +13,73 @@ from typing import Tuple
 # Third-party imports
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, 
-                             QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea, QFileDialog)
+                             QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea, QFileDialog,
+                             QDialog)
 from PyQt6.QtGui import QAction, QIcon, QPalette, QColor
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+
 # Local application imports
 from . import styles
+from .data_format import DataType
+
+class DataSetItem(QWidget):
+    "A class to create a data set item with widget controls."
+    def __init__(self, data_set_name='',item_index = 0, headers=None, data_type: list[DataType]=None, parent=None):
+        super().__init__()
+
+        self.setWindowTitle(data_set_name)
+        self.setGeometry(0,0,200,100)
+
+        layout = QVBoxLayout()
+      
+        self.setMinimumWidth(400)
+        self.setMaximumHeight(150)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        
+        self.setLayout(layout)
+
+        self.index = item_index
+        
+        
+        
+        wrapper1 = QWidget()
+        wrapper1.setStyleSheet("background-color: darkgrey; border: 0px;")
+        wrapper1.setFixedHeight(40)
+        
+        #wrapper1.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        row1 = QHBoxLayout(wrapper1)
+        row1.addWidget(QLabel(data_set_name))
+        row1.addWidget(QLabel('Tools'))
+
+        wrapper2 = QWidget()
+        wrapper2.setStyleSheet("background-color: rgba(64,64,0,100); border: 1px solid black;")
+        #wrapper2.setFixedHeight(60)
+        wrapper2.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        row2 = QHBoxLayout(wrapper2)
+        
+        for header in headers:
+            row2.addWidget(QLabel(f'Col{header}'))
+
+        layout.addWidget(wrapper1, alignment=Qt.AlignmentFlag.AlignTop)
+        layout.addWidget(wrapper2, alignment=Qt.AlignmentFlag.AlignTop)
+        
+        
+        
+
 
 
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, main):
         super().__init__()
+
+        self.main = main #reference for the main method, to access its methods.
+        self.main.print_something()
 
         # Method to create a new button (only called inside the class)
         def _CreateButton(name='',fixedsize=[52,52],iconpath=None,iconsize=[48,48],tooltip=None) -> QPushButton:
@@ -44,12 +95,12 @@ class MainWindow(QMainWindow):
         # Class Variables
         self.dataset_column_index = int(-1) #which column was selected on click
         
-        
+
         
         
         # ==== INITIALIZE WINDOW ====
         self.setWindowTitle("Guapo Data Handler")
-        self.setGeometry(100, 100, 900, 600)
+        self.setGeometry(100, 100, 1200, 900)
 
         # ==== MAIN WIDGET AND LAYOUT ====
         central_widget = QWidget()
@@ -86,7 +137,7 @@ class MainWindow(QMainWindow):
 
         # === DATA SET READER TAB WIDGETS ===
         read_layout = QVBoxLayout()
-        read_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        read_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         # === ADD/DELETE DATA SET === (first tab)
         self.b_DS_open_tabulated = _CreateButton('Open Tabulated',[192,52],None,[48,48],'Opens CSV, TSV and tabulated data with other delimiters.')
@@ -110,6 +161,24 @@ class MainWindow(QMainWindow):
 
         read_layout.addWidget(separator)
         read_layout.addWidget(self.b_DS_delete)
+
+        data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
+        data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        Test1 = DataSetItem(data_set_name='Country Data',item_index=0, headers=['Name', 'Area', 'Population', 'Capital'])
+        Test1.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        
+        Test2 = DataSetItem(data_set_name='Country Data',item_index=1, headers=['City', 'Mayor', 'GDP', 'Population'])
+        Test2.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        
+        Test3 = DataSetItem(data_set_name='Country Data',item_index=2, headers=['Name', 'Area', 'Population', 'Capital'])
+        Test3.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+
+        data_set_item_layout.addWidget(Test1)
+        data_set_item_layout.addWidget(Test2)  
+        data_set_item_layout.addWidget(Test3)
+        
+
        
         # === DATA CLEANING TAB WIDGETS === (second tab)
         # === STRING TOOLS  === 
@@ -267,8 +336,9 @@ class MainWindow(QMainWindow):
         self.side_tab.setTabPosition(QTabWidget.TabPosition.West)
 
         tab1 = QWidget() #on this tab will be all the widgets to load data sets from different formats
-        tab1_layout = QVBoxLayout()
+        tab1_layout = QHBoxLayout()
         tab1_layout.addLayout(read_layout)
+        tab1_layout.addLayout(data_set_item_layout)
         tab1.setLayout(tab1_layout)
 
         tab2 = QWidget() #on this tab will be all the widgets for data cleaning
@@ -301,7 +371,7 @@ class MainWindow(QMainWindow):
 
         # === Apply StyleSheet ===
         self.setStyleSheet(styles.GUIStyles.style_sheet)
-
+    
     # Method to update the status bar
     def update_statusbar(self, message=''):
             if (message):

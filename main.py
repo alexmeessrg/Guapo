@@ -4,6 +4,15 @@ Author: Alex Mees
 Date: 2025-03-13
 Description: Entry point for Project Guapo.
 License: MIT
+
+Basic Workflow
+1) Load data by type
+2) Handle data type
+3) Add to a data set list
+4) From selected data set, do data cleaning
+5) Display results
+6) Export graphs or write/overwrite consolidated data set.
+
 """
 
 # Standard library imports
@@ -19,18 +28,24 @@ from src.data_format import *
 
 class main:
     def __init__(self):
-    # === WINDOW INITIALIZATION ===
+        # === WINDOW INITIALIZATION ===
         self.app = QApplication(sys.argv) #initializes the application with command line support
-        self.window = MainWindow() 
+        self.window = MainWindow(self) #store a reference to self to access main functions. #if worried about memory leak you can use [weakref.proxy(self)]
         self.window.show()
 
-        #Global Setup
-        self.block_execution = False #wait till operation is over
-        self.active_directory = ''
+        # === MAIN VARIABLES SETUP ===
+        self.block_execution = False #set to wait till operation is over to allow processes
+        self.active_directory = '' #the directory the file open dialog will be pointed at initially
+        
         self.use_custom_blocked_list = False #which blocked word list to use
-        self.use_custom_dictionary = False
-        self.custom_dictionaries = [[''],['']]
-        self.active_custom_dictionary = ['']
+
+        self.use_custom_dictionary = False #use a custom dictionary for word replacement
+        self.custom_dictionaries = [[''],['']] #the custom dictionaries to use
+        self.active_custom_dictionary = [''] #the active custom dictionary
+        
+        self.current_dataset_index = -1
+        self.datasets: list[TableFormat] = [] #this holds all the data sets loaded by the system. [Limit size?]
+        self.connect_all_functions()
         
         #Pre-GUI test
         print("xxxxxxx Doing tests here xxxxxxxx")
@@ -38,24 +53,28 @@ class main:
         data, delimiter, has_header, error = self.open_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
     
         if not (error):
+            pass
             #for testing TODO:remove
-            self.thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data)
+            #self.datasets.append(TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data))
+            #self.current_dataset_index = len(self.datasets) + 1
 
-            self.connect_all_functions()
+            
+            #self.thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data)
+
+             #this depends on having an existing self.thisdata -> this hard dependency must be removed.
 
 
-            self.thisdata.search_result(0,'S')
-            self.window.set_headers(['Country','Area','Population','Capital'])
-            self.window.set_data_table(self.thisdata.data.values.tolist())
+            #self.thisdata.search_result(0,'S')
+            #self.window.set_headers(['Country','Area','Population','Capital'])
+            #self.window.set_data_table(self.thisdata.data.values.tolist())
         else:
             print(error)
     
         sys.exit(self.app.exec()) #putting this here so it won't block the rest of the commands.
 
-    #open_SQLite()
     
     # ==== Open Files by Types ====
-    def open_CSV(file_path) -> Tuple [pd.DataFrame,str,str]:
+    def open_CSV(self,file_path) -> Tuple [pd.DataFrame,str,str]:
         """
         Initialize file opening and data handling for CSV
 
@@ -67,10 +86,9 @@ class main:
             data, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it        
             return data, delimiter, has_header, error
         else:
-            print(error)
             return None, None, None, error
         
-    def open_SQLite(file_path):
+    def open_SQLite(self,file_path):
         """
         Initialize data connection and data handling for SQL
 
@@ -84,6 +102,7 @@ class main:
 
     # ==== GUI initialization scripts ====
     # === Actions for GUI buttons ===
+
     # == Method for removing whitespace
     def baction_str_whitespace(self):
         """
@@ -106,9 +125,9 @@ class main:
                 case _:
                     raise ValueError
             
-            self.thisdata.capitalization_rule(col_index, option)
-            self.window.set_data_table(self.thisdata.data.values.tolist())
-            self.window.add_to_log([self.thisdata.data.columns[col_index], col_index, option],'str_capitalization')
+            self.datasets[self.current_dataset_index].remove_whitespace(col_index, option)
+            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+            self.window.add_to_log([self.datasets[self.current_dataset_index].data.columns[col_index], col_index, option],'str_whitespace')
             self.window.update_statusbar('Whitespace removal Operation')
                     
         except IndexError:
@@ -120,9 +139,9 @@ class main:
 
 
         if not (self.window.dataset_column_index < 0):
-            self.thisdata.remove_whitespace(self.window.dataset_column_index,'doubles')
-            self.window.set_data_table(self.thisdata.data.values.tolist())
-            print(self.thisdata.data.iloc[:,self.window.dataset_column_index].to_list())
+            self.datasets[self.current_dataset_index].remove_whitespace(self.window.dataset_column_index,'doubles')
+            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+            #print(self.datasets[self.current_dataset_index].data.iloc[:,self.window.dataset_column_index].to_list())
     
     # == Method for capitalization rule
     def baction_str_capitalization(self):
@@ -146,9 +165,9 @@ class main:
                 case _:
                     raise ValueError
             
-            self.thisdata.capitalization_rule(col_index, option)
-            self.window.set_data_table(self.thisdata.data.values.tolist())
-            self.window.add_to_log([self.thisdata.data.columns[col_index], col_index, option],'str_capitalization')
+            self.datasets[self.current_dataset_index].capitalization_rule(col_index, option)
+            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+            self.window.add_to_log([self.datasets[self.current_dataset_index].columns[col_index], col_index, option],'str_capitalization')
             self.window.update_statusbar('Capitalization Operation')
                     
         except IndexError:
@@ -172,9 +191,9 @@ class main:
             else:
                 blocked_words_list = constants.BLOCKED_WORD_LIST #user should be able to review these TODO:add option to add own list
             
-            self.thisdata.blocked_words(col_index, blocked_words_list)
-            self.window.set_data_table(self.thisdata.data.values.tolist())
-            self.window.add_to_log([self.thisdata.data.columns[col_index], col_index, self.use_custom_blocked_list],'str_blocked')
+            self.datasets[self.current_dataset_index].blocked_words(col_index, blocked_words_list)
+            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+            self.window.add_to_log([self.datasets[self.current_dataset_index].data.columns[col_index], col_index, self.use_custom_blocked_list],'str_blocked')
             self.window.update_statusbar('Blocked word Operation')
                     
         except IndexError:
@@ -198,9 +217,9 @@ class main:
             else:
                 dictionary = constants.COMMON_DICTIONARY_REPLACEMENTS
             
-            self.thisdata.dictionary_words(col_index, dictionary)
-            self.window.set_data_table(self.thisdata.data.values.tolist())
-            self.window.add_to_log([self.thisdata.data.columns[col_index], col_index, self.use_custom_dictionary],'str_dictionary')
+            self.datasets[self.current_dataset_index].dictionary_words(col_index, dictionary)
+            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+            self.window.add_to_log([self.datasets[self.current_dataset_index].data.columns[col_index], col_index, self.use_custom_dictionary],'str_dictionary')
             self.window.update_statusbar('Blocked word Operation')
                     
         except IndexError:
@@ -221,7 +240,7 @@ class main:
         type (str) = how to handle the operation per pre selected type
         
         """
-        self.get_file_path(self.window.centralWidget(),type, pointed_path='E:/GUAPO')
+        self.get_file_path(self.window.centralWidget(),type, pointed_path='E:/GUAPO') #match/case handling in the called method
 
     #data reading scripts
     def get_file_path(self,parent_window, type='CSV', pointed_path=''):
@@ -272,8 +291,18 @@ class main:
                 self.active_directory = os.path.dirname(file_path)
                 match type:
                     case 'CSV':
-                        data, delimiter, has_header, error = self.open_CSV()
-                        self.thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data) #NEEDS TO BE UPDATED FOR REAL DATA
+                        
+                        data, delimiter, has_header, error = self.open_CSV(file_path)
+                        
+                        self.datasets.append(TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data))
+                        self.current_dataset_index = len(self.datasets)-1
+                        self.window.set_headers(['Country','Area','Population','Capital'])
+                        print('headers done')
+                        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+                        print('table set')
+                        print(self.datasets[self.current_dataset_index].data.values.tolist())
+                        print("Finished Reading")
+
                         #UPDATE ALL THE GUI ELEMENTS
                         self.block_execution = False
                     case 'JSON':
@@ -286,9 +315,15 @@ class main:
                         pass
                     case _:
                         raise ValueError
-        except:
+        except ValueError:
+            self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error on [file type] check.')
+        except FileNotFoundError:
+            self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Bad path string or missing file.')
+        except Exception as e:
             self.block_execution = False
-            self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.')
+            self.window.update_statusbar(f'[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.\n{e}')
+            print(f'{e}')
+
 
             #FROM HERE ON, START TO PROCESS THE DATA.
             #########
@@ -307,7 +342,10 @@ class main:
     
 
     # === Connect main methods to GUI buttons ===
-    def connect_all_functions(self):
+    def connect_all_functions(self): #!!!!!!!!!!REMOVE THIS AND ADD THE FUNCTIONS DIRECTLY TO THE REFERENCE TO MAIN INSIDE GUI.PY
+        """
+        Connect main methods to GUI actions (ex: clicked)
+        """        
         self.window.b_str_whitespaces.clicked.connect(self.baction_str_whitespace)
         self.window.b_str_capitalize.clicked.connect(self.baction_str_capitalization)
         self.window.b_str_blocked.clicked.connect(self.baction_str_blocked_words)
@@ -315,11 +353,9 @@ class main:
 
         self.window.b_DS_open_tabulated.clicked.connect(lambda: self.get_file_path_by_type('CSV'))
 
-    def printsomething():
-        print('Button Clicked')
-
-
-
+    
+    def print_something(self):
+        print ('SUCCESFULLY PRINTED')
 
 
 if __name__ == '__main__':

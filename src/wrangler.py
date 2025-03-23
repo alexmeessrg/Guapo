@@ -86,17 +86,17 @@ class Wrangler:
         #Should try to autodetect integers, floats, dates => other should be opt-in at this moment.
 
         for col_name, col_data in df.items():           
-            print(f"Column: {col_name}")
+            #print(f"Column: {col_name}")
             #print(col_data.tolist())  # Convert to list if needed
             total_int_positives, total_float_positives = Wrangler.check_type_number(col_data.tolist(), sample_size)
-            print(f"Total Integer Positives: {total_int_positives/sample_size:.2%} \n Total Float Positives: {total_float_positives/sample_size:.2%}")
+            #print(f"Total Integer Positives: {total_int_positives/sample_size:.2%} \n Total Float Positives: {total_float_positives/sample_size:.2%}")
             if (total_int_positives/sample_size > 0.5) or (total_float_positives/sample_size > 0.5):
                 if (total_int_positives > total_float_positives):
                     df[col_name] = df[col_name].astype('int64') #change data type of current column to int64
                 else:
                     df[col_name] = df[col_name].astype('float64') #change data type of current column to int64
         
-        print (df.dtypes)
+        #print (df.dtypes)
         return df, delimiter, has_header, None
 
 
