@@ -6,8 +6,6 @@ Description: Entry point for Project Guapo.
 License: MIT
 """
 
-
-
 # Standard library imports
 
 # Third-party imports
@@ -19,22 +17,6 @@ from src.wrangler import *
 from src.gui import *
 from src.data_format import *
 
-
-def open_SQLite():
-        Fetcher.read_SQLite("E:/GUAPO/guapo/sample/sampleSQL.db") #TODO: replace with proper file path
-
-def open_CSV() -> Tuple [pd.DataFrame,str,str]:
-    raw_data, error = Fetcher.read_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
-    if not (error):
-        data, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it        
-        return data, delimiter, has_header, error
-    else:
-        print(error)
-        return None, None, None, error
-
-
-
-
 class main:
     def __init__(self):
     # === WINDOW INITIALIZATION ===
@@ -43,6 +25,8 @@ class main:
         self.window.show()
 
         #Global Setup
+        self.block_execution = False #wait till operation is over
+        self.active_directory = ''
         self.use_custom_blocked_list = False #which blocked word list to use
         self.use_custom_dictionary = False
         self.custom_dictionaries = [[''],['']]
@@ -51,7 +35,7 @@ class main:
         #Pre-GUI test
         print("xxxxxxx Doing tests here xxxxxxxx")
     
-        data, delimiter, has_header, error = open_CSV()
+        data, delimiter, has_header, error = self.open_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
     
         if not (error):
             #for testing TODO:remove
@@ -70,10 +54,41 @@ class main:
 
     #open_SQLite()
     
+    # ==== Open Files by Types ====
+    def open_CSV(file_path) -> Tuple [pd.DataFrame,str,str]:
+        """
+        Initialize file opening and data handling for CSV
+
+        Args:
+        file_path (str) = full file path
+        """
+        raw_data, error = Fetcher.read_CSV(file_path)
+        if not (error):
+            data, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it        
+            return data, delimiter, has_header, error
+        else:
+            print(error)
+            return None, None, None, error
+        
+    def open_SQLite(file_path):
+        """
+        Initialize data connection and data handling for SQL
+
+        Args:
+        file_path (str) = full file path
+        """
+        #"E:/GUAPO/guapo/sample/sampleSQL.db"
+        Fetcher.read_SQLite(file_path) #TODO: replace with proper file path
+
+
+
     # ==== GUI initialization scripts ====
     # === Actions for GUI buttons ===
     # == Method for removing whitespace
     def baction_str_whitespace(self):
+        """
+        Button connected action for white space removal method
+        """
         try:
             col_index = self.window.dataset_column_index
             option = 'all'
@@ -111,6 +126,9 @@ class main:
     
     # == Method for capitalization rule
     def baction_str_capitalization(self):
+        """
+        Button connected action for capitalization method
+        """
         try:
             col_index = self.window.dataset_column_index
             option = 'all' #the capitalization rule option
@@ -142,6 +160,9 @@ class main:
 
     # == Method for blocked words rule
     def baction_str_blocked_words(self):
+        """
+        Button connected action for blocked words replace method
+        """
         try:
             col_index = self.window.dataset_column_index
             if (self.use_custom_blocked_list):
@@ -165,6 +186,9 @@ class main:
 
     # == Method for dictionary words replacement
     def baction_str_dictionary_words(self):
+        """
+        Button connected action for dictionary replace method
+        """
         try:
             col_index = self.window.dataset_column_index
             if (self.use_custom_dictionary):
@@ -238,16 +262,34 @@ class main:
         except:
             self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error on [file type] check.')
 
-        if not (pointed_path and os.path.isdir(pointed_path)): #if pre-existing path exists and is valid
-            pointed_path=''    
+        if not (self.active_directory and os.path.isdir(self.active_directory)): #if pre-existing path does not exists or isn't valid
+            self.active_directory=''
 
         try:     
-            file_path, filter_option = QFileDialog.getOpenFileName(parent_window, caption=d_caption, directory=pointed_path, filter=d_filter)
+            self.block_execution = True
+            file_path, filter_option = QFileDialog.getOpenFileName(parent_window, caption=d_caption, directory=self.active_directory, filter=d_filter)
+            if (file_path and os.path.isfile(file_path)): #if returned path exists and is valid
+                self.active_directory = os.path.dirname(file_path)
+                match type:
+                    case 'CSV':
+                        data, delimiter, has_header, error = self.open_CSV()
+                        self.thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data) #NEEDS TO BE UPDATED FOR REAL DATA
+                        #UPDATE ALL THE GUI ELEMENTS
+                        self.block_execution = False
+                    case 'JSON':
+                        pass
+                    case 'SQLite':
+                        pass
+                    case 'geographic':
+                        pass
+                    case 'XLS':
+                        pass
+                    case _:
+                        raise ValueError
         except:
+            self.block_execution = False
             self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.')
-        finally:
-            if (file_path and os.path.isdir(file_path)): #if pre-existing path exists and is valid
-             
+
             #FROM HERE ON, START TO PROCESS THE DATA.
             #########
             ####################
