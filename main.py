@@ -353,7 +353,21 @@ class main:
 
         self.window.b_DS_open_tabulated.clicked.connect(lambda: self.get_file_path_by_type('CSV'))
 
-    
+    def update_dataframe_column(self, dataset_index = -1, data_frame_col = -1, new_type = DataType.TEXT, new_format = '') -> bool:
+        """
+        Tries to update data frame (inside DataStructure) column to data type to requested type
+        Args:
+        dataset_index [int]: the index for the data set
+        data_frame_col [int]: the index for the data frame column
+        new_type[data_format.DataType]: the type of data to switch to (if possible)
+        new_format[str]: the specific formatting for the selected data type, if any
+
+        Output:
+        bool -> was operation successful? This will update GUI data accordingly
+        """  
+        print(f'Dataset:[{dataset_index}], DataColumn:[{data_frame_col}], New Data Type:[{str(new_type)}]')
+        return True
+
     def print_something(self):
         print ('SUCCESFULLY PRINTED')
 

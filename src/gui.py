@@ -31,41 +31,69 @@ class DataSetItem(QWidget):
     def __init__(self, data_set_name='',item_index = 0, headers=None, data_type: list[DataType]=None, parent=None):
         super().__init__()
 
+        self.parent = parent
+        self.index = item_index
+
         self.setWindowTitle(data_set_name)
         self.setGeometry(0,0,200,100)
-
-        layout = QVBoxLayout()
-      
         self.setMinimumWidth(400)
         self.setMaximumHeight(150)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         
+        layout = QVBoxLayout()
         self.setLayout(layout)
-
-        self.index = item_index
-        
-        
+        self.data_type = data_type
         
         wrapper1 = QWidget()
-        wrapper1.setStyleSheet("background-color: darkgrey; border: 0px;")
+        wrapper1.setStyleSheet("background-color: #2C3E50; border: 0px; border-radius: 6px; font-weight: bold;")
         wrapper1.setFixedHeight(40)
         
-        #wrapper1.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         row1 = QHBoxLayout(wrapper1)
         row1.addWidget(QLabel(data_set_name))
         row1.addWidget(QLabel('Tools'))
 
         wrapper2 = QWidget()
-        wrapper2.setStyleSheet("background-color: rgba(64,64,0,100); border: 1px solid black;")
-        #wrapper2.setFixedHeight(60)
+        wrapper2.setStyleSheet("background-color: transparent; border: 0px solid black;")
         wrapper2.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         row2 = QHBoxLayout(wrapper2)
         
-        for header in headers:
-            row2.addWidget(QLabel(f'Col{header}'))
+        type_names = [member.name.capitalize() for member in DataType]
+
+        for index, header in enumerate(headers): #add a column to each 
+            inner_wrapper = QWidget()
+            inner_wrapper.setStyleSheet("background-color: #2685a5; border: 1px solid #4da8c6; border-radius: 4px;")
+            inner_wrapper.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+            row3 = QVBoxLayout(inner_wrapper)
+
+            header_label = QLabel(f'{header}')
+            header_label.setStyleSheet("font-weight: bold; text-align: center;")
+            header_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            row3.addWidget(header_label)
+            
+            type_dropdown = QComboBox()
+            type_dropdown.addItems(type_names)
+            type_dropdown.setCurrentText(str(self.data_type[index]).capitalize())
+            type_dropdown.col_index = index
+            type_dropdown.currentIndexChanged.connect(lambda index:self.change_col_datatype(index)) #send the index of the selected item to the function (the change in data type)
+            
+            row3.addWidget(type_dropdown)
+            row2.addWidget(inner_wrapper)
 
         layout.addWidget(wrapper1, alignment=Qt.AlignmentFlag.AlignTop)
         layout.addWidget(wrapper2, alignment=Qt.AlignmentFlag.AlignTop)
+
+        
+        
+    def change_col_datatype(self, datatype_index=0):
+        col_index = self.sender().col_index
+        if not (str(self.data_type[col_index]).capitalize() == self.sender().currentText().capitalize()): #only operate if current selection is different from existing type selection
+            if (self.parent.change_data_col_data_type(self.index, col_index, DataType(datatype_index+1), new_dataformat='')): #index of the dataset, index of the column, the attempted data type change, a format string #ENUM is 1 based!
+                
+                self.data_type[col_index] = DataType(datatype_index+1) #if conversion successful update list of data_types
+
+            else: 
+                self.sender().setCurrentText(str(self.data_type[col_index]).capitalize()) #if conversion unsuccessful return QComboBox to previous value.
+
         
         
         
@@ -165,13 +193,13 @@ class MainWindow(QMainWindow):
         data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
         data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        Test1 = DataSetItem(data_set_name='Country Data',item_index=0, headers=['Name', 'Area', 'Population', 'Capital'])
+        Test1 = DataSetItem(data_set_name='Country Data',item_index=0, headers=['Name', 'Area', 'Population', 'Capital'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
         Test1.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         
-        Test2 = DataSetItem(data_set_name='Country Data',item_index=1, headers=['City', 'Mayor', 'GDP', 'Population'])
+        Test2 = DataSetItem(data_set_name='Country Data',item_index=1, headers=['City', 'Mayor', 'GDP', 'Population'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
         Test2.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         
-        Test3 = DataSetItem(data_set_name='Country Data',item_index=2, headers=['Name', 'Area', 'Population', 'Capital'])
+        Test3 = DataSetItem(data_set_name='Country Data',item_index=2, headers=['Name', 'Area', 'Population', 'Capital'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
         Test3.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
 
         data_set_item_layout.addWidget(Test1)
@@ -476,6 +504,12 @@ class MainWindow(QMainWindow):
         self.canvas.figure = fig
         self.canvas.draw()
 
+    def change_data_col_data_type(self, dataset_index=-1, dataframe_column=-1, new_datatype=DataType.TEXT, new_dataformat='')-> bool:
+        result = self.main.update_dataframe_column(dataset_index, dataframe_column, new_datatype, new_dataformat)
+
+        return result
+    
+    
     def populate_dataset_selection(self,item_name): #use to create the list of data assets
         self.current_data_list.addWidget(QPushButton(item_name))
 

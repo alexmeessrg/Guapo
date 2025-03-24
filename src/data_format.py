@@ -25,6 +25,12 @@ class DataType(Enum):
     DICTIONARY = 7 #a JSON file, XML
     BOOLEAN = 9 #TRUE/FALSE
 
+    def __str__(self):
+        return self.name
+    
+    def __int__(self):
+        return list(self.__class__).index(self)  # Convert to int using index
+
     #column info example: {type=DataType.DATE, format='DD/MM/YYYY'}
 
 class DataFormats(): #some extra especial formating for data types (used to change display and converting storage format)
