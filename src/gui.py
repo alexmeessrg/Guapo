@@ -94,12 +94,6 @@ class DataSetItem(QWidget):
             else: 
                 self.sender().setCurrentText(str(self.data_type[col_index]).capitalize()) #if conversion unsuccessful return QComboBox to previous value.
 
-        
-        
-        
-
-
-
 
 
 class MainWindow(QMainWindow):
@@ -190,22 +184,8 @@ class MainWindow(QMainWindow):
         read_layout.addWidget(separator)
         read_layout.addWidget(self.b_DS_delete)
 
-        data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
-        data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        Test1 = DataSetItem(data_set_name='Country Data',item_index=0, headers=['Name', 'Area', 'Population', 'Capital'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
-        Test1.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
-        
-        Test2 = DataSetItem(data_set_name='Country Data',item_index=1, headers=['City', 'Mayor', 'GDP', 'Population'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
-        Test2.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
-        
-        Test3 = DataSetItem(data_set_name='Country Data',item_index=2, headers=['Name', 'Area', 'Population', 'Capital'], data_type=[DataType.TEXT, DataType.INTEGER, DataType.INTEGER, DataType.TEXT], parent=self)
-        Test3.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
-
-        data_set_item_layout.addWidget(Test1)
-        data_set_item_layout.addWidget(Test2)  
-        data_set_item_layout.addWidget(Test3)
-        
+        self.data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
+        self.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
        
         # === DATA CLEANING TAB WIDGETS === (second tab)
@@ -356,7 +336,7 @@ class MainWindow(QMainWindow):
         self.dataset_container.setLayout(self.current_data_list)
 
         for x in range(15):
-            self.populate_dataset_selection(f'Button: {x}')
+            self.populate_dataset_selection(f'Button: {x}') #add just for testing (each button is a graph type)
 
 
         # ==== TAB SWITCHER ====
@@ -366,7 +346,7 @@ class MainWindow(QMainWindow):
         tab1 = QWidget() #on this tab will be all the widgets to load data sets from different formats
         tab1_layout = QHBoxLayout()
         tab1_layout.addLayout(read_layout)
-        tab1_layout.addLayout(data_set_item_layout)
+        tab1_layout.addLayout(self.data_set_item_layout)
         tab1.setLayout(tab1_layout)
 
         tab2 = QWidget() #on this tab will be all the widgets for data cleaning
@@ -455,7 +435,18 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage(f"Selected Column {column} - '{column_name}'")
             self.status_bar.show()
             self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
-            self.clean_tools_tab.setCurrentIndex(1) #TODO: JUST FOR TESTING REMOVE
+            # tool bar to select
+            type = self.main.return_col_type(0, column)
+            match type:
+                case DataType.TEXT:
+                    self.clean_tools_tab.setCurrentIndex(1)
+                case DataType.INTEGER:
+                    self.clean_tools_tab.setCurrentIndex(0)
+                case DataType.FLOAT:
+                    self.clean_tools_tab.setCurrentIndex(0)
+                case _:
+                    pass
+             #TODO: JUST FOR TESTING REMOVE
 
     
     def b_connect_whitespace(self,option='doubles'):
@@ -509,7 +500,15 @@ class MainWindow(QMainWindow):
 
         return result
     
-    
+    def add_dataset_item_entry(self, data_set_name: str='Data Set', item_index: int=0, headers: list[str]=[''], data_types: list[DataType]=None):
+        dataset_item = DataSetItem(data_set_name, item_index, headers, data_types, self)
+        dataset_item.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        self.data_set_item_layout.addWidget(dataset_item)
+        print("Item added")
+
+
+
+
     def populate_dataset_selection(self,item_name): #use to create the list of data assets
         self.current_data_list.addWidget(QPushButton(item_name))
 

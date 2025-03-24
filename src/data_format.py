@@ -45,7 +45,7 @@ class DataMode(Enum): #how will the data be handled
 
 
 class DataStructure(): #one for each data group
-    def __init__(self, dmode=DataMode.TABLE, dtype=[], dformat=[], dheaders=[],edits=[]):
+    def __init__(self, dmode=DataMode.TABLE, dtype: list[DataType]= None, dformat=[], dheaders=[],edits=[]):
         self.dmode = dmode #mode of data to use
         self.dtype = dtype #array with identifiers for each data column
         self.dformat = dformat #additional formating for each column data
@@ -53,7 +53,7 @@ class DataStructure(): #one for each data group
         self.edits = edits #log of edits created on this data structure
 
 class TableFormat(DataStructure):
-    def __init__(self, dmode=DataMode.TABLE, dtype=[], dformat=[], dheaders=[],edits=[], data=pd.DataFrame()):
+    def __init__(self, dmode=DataMode.TABLE, dtype: list[DataType]= None, dformat=[], dheaders=[],edits=[], data=pd.DataFrame()):
         super().__init__(dmode=DataMode.TABLE, dtype=dtype, dformat=dformat, dheaders=dheaders,edits=edits)
         self.data = data
 

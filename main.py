@@ -50,7 +50,7 @@ class main:
         #Pre-GUI test
         print("xxxxxxx Doing tests here xxxxxxxx")
     
-        data, delimiter, has_header, error = self.open_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
+        data, data_types, delimiter, has_header, error = self.open_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
     
         if not (error):
             pass
@@ -74,19 +74,29 @@ class main:
 
     
     # ==== Open Files by Types ====
-    def open_CSV(self,file_path) -> Tuple [pd.DataFrame,str,str]:
+    def open_CSV(self,file_path) -> Tuple [pd.DataFrame,list[DataType], str, bool, str]:
         """
         Initialize file opening and data handling for CSV
 
         Args:
         file_path (str) = full file path
+
+        Outputs:
+        DataFrame = the dataframe of the processed data set
+        list[DataType] = the Data Types enum for the data set
+        str = the delimiter
+        bool = if data has delimiter
+        str = the error string
         """
         raw_data, error = Fetcher.read_CSV(file_path)
         if not (error):
-            data, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it        
-            return data, delimiter, has_header, error
+            data, data_types, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it
+            if not (error):
+                return data, data_types, delimiter, has_header, error
+            else:
+                return None, None, None, None, error   
         else:
-            return None, None, None, error
+            return None, None, None, None, error
         
     def open_SQLite(self,file_path):
         """
@@ -289,32 +299,9 @@ class main:
             file_path, filter_option = QFileDialog.getOpenFileName(parent_window, caption=d_caption, directory=self.active_directory, filter=d_filter)
             if (file_path and os.path.isfile(file_path)): #if returned path exists and is valid
                 self.active_directory = os.path.dirname(file_path)
-                match type:
-                    case 'CSV':
-                        
-                        data, delimiter, has_header, error = self.open_CSV(file_path)
-                        
-                        self.datasets.append(TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data))
-                        self.current_dataset_index = len(self.datasets)-1
-                        self.window.set_headers(['Country','Area','Population','Capital'])
-                        print('headers done')
-                        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-                        print('table set')
-                        print(self.datasets[self.current_dataset_index].data.values.tolist())
-                        print("Finished Reading")
-
-                        #UPDATE ALL THE GUI ELEMENTS
-                        self.block_execution = False
-                    case 'JSON':
-                        pass
-                    case 'SQLite':
-                        pass
-                    case 'geographic':
-                        pass
-                    case 'XLS':
-                        pass
-                    case _:
-                        raise ValueError
+                self.process_read_data(file_path, type)
+            else:
+                raise FileNotFoundError
         except ValueError:
             self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error on [file type] check.')
         except FileNotFoundError:
@@ -325,12 +312,53 @@ class main:
             print(f'{e}')
 
 
-            #FROM HERE ON, START TO PROCESS THE DATA.
-            #########
-            ####################
-            ################
+    def process_read_data(self, file_path: str='', type: str=''):
+        try:
+            match type:
+                case 'CSV':
+                    data, dataset_type, delimiter, has_header, error = self.open_CSV(file_path)
+                    if not (error):
+                        self.datasets.append(TableFormat(DataMode.TABLE, dtype=dataset_type,dformat=[], dheaders=data.columns.to_list(),data=data))
+                        self.current_dataset_index = len(self.datasets)-1
+                        self.window.set_headers(data.columns.to_list())
+                        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+                        self.window.add_dataset_item_entry('New Data', len(self.datasets)-1, data.columns.tolist(), dataset_type)
+                        
+                    self.block_execution = False
+                case 'JSON':
+                    pass
+                case 'SQLite':
+                    pass
+                case 'geographic':
+                    pass
+                case 'XLS':
+                    pass
+                case _:
+                    raise ValueError
+        except ValueError:
+            self.block_execution = False
+            self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Unknown error on [file type] check.')
+        except FileNotFoundError:
+            self.block_execution = False
+            self.window.update_statusbar('[ERROR] File "main.py", Function "get_file_path", Bad path string or missing file.')
+        except Exception as e:
+            self.block_execution = False
+            self.window.update_statusbar(f'[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.\n{e}')
+            print(f'{e}')
 
     
+    
+    def return_col_type(self,data_item=-1, col=-1) -> DataType:
+        """
+        Gets the Data Type of selected column (ex: clicked)
+        Args
+        [int] = the selected data set item (out of all imported)
+        [int] = the selected column of the data set
+        Return
+        [DataType] = the data type of selected column
+        """           
+        return self.datasets[data_item].dtype[col]
+
 
     #data wrangling scripts
 

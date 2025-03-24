@@ -15,7 +15,7 @@ import pandas as pd
 
 # Local application imports
 from . import constants
-
+from .data_format import DataType
 
 
     
@@ -62,7 +62,7 @@ class Wrangler:
                     return header,'',None
     
     @staticmethod
-    def break_tabulated(raw_data,delimiter,has_header=True,header=[]) -> Tuple [pd.DataFrame, str, bool, str]: #the converted data frame, the delimiter, has_header, possible errors
+    def break_tabulated(raw_data,delimiter,has_header=True,header=[]) -> Tuple [pd.DataFrame, list[DataType], str, bool, str]: #the converted data frame, the delimiter, has_header, possible errors
         col_count = len(raw_data[0].split(delimiter)) #there could be a mistake in the header/first line making this number unreliable
 
         if (has_header):
@@ -76,8 +76,7 @@ class Wrangler:
 
         df = pd.DataFrame(data, columns=header) #create a Panda Data Frame with the data and the created headers
 
-        #print (df)
-        #print (df.dtypes)
+        data_types = [DataType.TEXT] * col_count #initialize a list with all data types da TEXT
 
         sample_size = min (constants.DATA_TYPE_SAMPLE_SIZE, df.size-1) #the amount of data to sample clamped by data lenght if shorter than
         total_int_positives = 0
@@ -85,19 +84,20 @@ class Wrangler:
 
         #Should try to autodetect integers, floats, dates => other should be opt-in at this moment.
 
-        for col_name, col_data in df.items():           
-            #print(f"Column: {col_name}")
-            #print(col_data.tolist())  # Convert to list if needed
+        for index, (col_name, col_data) in enumerate(df.items()):           
+
             total_int_positives, total_float_positives = Wrangler.check_type_number(col_data.tolist(), sample_size)
-            #print(f"Total Integer Positives: {total_int_positives/sample_size:.2%} \n Total Float Positives: {total_float_positives/sample_size:.2%}")
+
             if (total_int_positives/sample_size > 0.5) or (total_float_positives/sample_size > 0.5):
                 if (total_int_positives > total_float_positives):
                     df[col_name] = df[col_name].astype('int64') #change data type of current column to int64
+                    data_types[index] = DataType.INTEGER
                 else:
                     df[col_name] = df[col_name].astype('float64') #change data type of current column to int64
+                    data_types[index] = DataType.FLOAT
         
         #print (df.dtypes)
-        return df, delimiter, has_header, None
+        return df, data_types, delimiter, has_header, None
 
 
 
@@ -126,10 +126,9 @@ class Wrangler:
 
 
     @staticmethod
-    def handle_tabulated(raw_data,delimiter=None,has_header=True) -> Tuple [pd.DataFrame, str, bool, str]: #the actual array, delimiter used, possible errors
+    def handle_tabulated(raw_data,delimiter=None,has_header=True) -> Tuple [pd.DataFrame, list[DataType], str, bool, str]: #the actual array, delimiter used, possible errors
 
-        #for line in raw_data:
-        #    print(line)
+        #THERE NEEDS TO BE A METHOD TO IDENTIFY HEADER TYPES.
 
         if (has_header):
             if (len(raw_data)<2): #if you exclude the header there is no data.
@@ -138,8 +137,8 @@ class Wrangler:
                 header = raw_data[0]
                 sample_data = raw_data[0:min(4,len(raw_data)-1)] #tries to sample 4 lines or less if data is small
                 header, delimiter, error = Wrangler.header_comprehension(header, sample_data, delimiter)
-                data, delimiter, has_header, error = Wrangler.break_tabulated(raw_data,delimiter,has_header,header)
-                return data, delimiter, has_header, error
+                data, data_types, delimiter, has_header, error = Wrangler.break_tabulated(raw_data,delimiter,has_header,header)
+                return data, data_types, delimiter, has_header, error
             
 
 
