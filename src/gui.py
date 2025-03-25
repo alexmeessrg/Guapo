@@ -14,7 +14,7 @@ from typing import Tuple
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, 
                              QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea, QFileDialog,
-                             QDialog)
+                             QDialog, QLineEdit)
 from PyQt6.QtGui import QAction, QIcon, QPalette, QColor
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 
@@ -49,8 +49,21 @@ class DataSetItem(QWidget):
         wrapper1.setFixedHeight(40)
         
         row1 = QHBoxLayout(wrapper1)
-        row1.addWidget(QLabel(data_set_name))
-        row1.addWidget(QLabel('Tools'))
+        self.label = QLabel(data_set_name) #clickable/editable label
+        self.label.mousePressEvent = self.start_editing
+
+        self.line_edit = QLineEdit() #click box to start editing
+        self.line_edit.hide()
+        self.line_edit.returnPressed.connect(self.finish_editing)
+        self.line_edit.editingFinished.connect(self.finish_editing)
+
+        row1.addWidget(self.label)
+        row1.addWidget(self.line_edit)
+        self.select_button = QPushButton('Select')
+        self.select_button.setStyleSheet(styles.GUIStyles.small_button)
+        self.select_button.setMaximumWidth(60)
+        self.select_button.clicked.connect(self.set_database_selected)
+        row1.addWidget(self.select_button)
 
         wrapper2 = QWidget()
         wrapper2.setStyleSheet("background-color: transparent; border: 0px solid black;")
@@ -85,6 +98,9 @@ class DataSetItem(QWidget):
         
         
     def change_col_datatype(self, datatype_index=0):
+        """
+        Change the column data type.
+        """
         col_index = self.sender().col_index
         if not (str(self.data_type[col_index]).capitalize() == self.sender().currentText().capitalize()): #only operate if current selection is different from existing type selection
             if (self.parent.change_data_col_data_type(self.index, col_index, DataType(datatype_index+1), new_dataformat='')): #index of the dataset, index of the column, the attempted data type change, a format string #ENUM is 1 based!
@@ -93,6 +109,32 @@ class DataSetItem(QWidget):
 
             else: 
                 self.sender().setCurrentText(str(self.data_type[col_index]).capitalize()) #if conversion unsuccessful return QComboBox to previous value.
+        
+    def start_editing(self,event):
+        """
+        Start editing the label by showing the line edit.
+        """
+        self.line_edit.setText(self.label.text())
+        self.label.hide()
+        self.line_edit.show()
+        self.line_edit.setFocus()
+
+
+    def finish_editing(self):
+        """
+        Finish editing the line and send the updated name.
+        """
+        self.label.setText(self.line_edit.text())
+        self.line_edit.hide()
+        self.label.show()
+        self.parent.main.update_dataset_entry_name(self.index,self.line_edit.text())
+
+    def set_database_selected(self):
+        """
+        Set which data base is selected (it will show in the data cleaning tab)
+        """
+        self.parent.main.update_database_selected(self.index)
+
 
 
 
@@ -186,7 +228,7 @@ class MainWindow(QMainWindow):
 
         self.data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
         self.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
+        self.data_set_item_layout
        
         # === DATA CLEANING TAB WIDGETS === (second tab)
         # === STRING TOOLS  === 
@@ -297,7 +339,7 @@ class MainWindow(QMainWindow):
         
 
         # === SPREADSHEET (TABLE FOR DATA CLEANING) ===
-        self.table = QTableWidget(20, 4)  # ROWS X COLUMNS  
+        self.table = QTableWidget(1, 1)  # ROWS X COLUMNS 
         self.table.setSelectionMode(self.table.SelectionMode.ContiguousSelection)  # Allow multiple selections
         self.table.setSelectionBehavior(self.table.SelectionBehavior.SelectColumns)  # Select full columns
         self.table.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)

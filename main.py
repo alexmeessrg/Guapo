@@ -320,9 +320,8 @@ class main:
                     if not (error):
                         self.datasets.append(TableFormat(DataMode.TABLE, dtype=dataset_type,dformat=[], dheaders=data.columns.to_list(),data=data))
                         self.current_dataset_index = len(self.datasets)-1
-                        self.window.set_headers(data.columns.to_list())
-                        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-                        self.window.add_dataset_item_entry('New Data', len(self.datasets)-1, data.columns.tolist(), dataset_type)
+                        self.update_database_selected(self.current_dataset_index)
+                        self.window.add_dataset_item_entry(os.path.basename(file_path), len(self.datasets)-1, data.columns.tolist(), dataset_type)
                         
                     self.block_execution = False
                 case 'JSON':
@@ -351,13 +350,37 @@ class main:
     def return_col_type(self,data_item=-1, col=-1) -> DataType:
         """
         Gets the Data Type of selected column (ex: clicked)
-        Args
+        Args:
         [int] = the selected data set item (out of all imported)
         [int] = the selected column of the data set
-        Return
+        Return:
         [DataType] = the data type of selected column
         """           
         return self.datasets[data_item].dtype[col]
+    
+    def update_dataset_entry_name(self, data_item=-1, new_name=''):
+        """
+        Update a data set name.
+
+        Args:
+        [int] = the selected data set item (out of all imported)
+        [str] = new name to change to
+        """         
+        self.datasets[data_item].dname = new_name
+
+    def update_database_selected(self, data_item_selected=-1):
+        """
+        Update the table with current data base selected.
+
+        Args:
+        [int] = the selected data set item (out of all imported)
+        """  
+        self.current_dataset_index = data_item_selected
+        self.window.table.setRowCount(len(self.datasets[self.current_dataset_index].data.values.tolist()))
+        self.window.table.setColumnCount(len(self.datasets[self.current_dataset_index].data.columns.to_list()))        
+        self.window.set_headers(self.datasets[self.current_dataset_index].data.columns.to_list())
+        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+
 
 
     #data wrangling scripts

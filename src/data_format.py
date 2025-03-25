@@ -51,6 +51,7 @@ class DataStructure(): #one for each data group
         self.dformat = dformat #additional formating for each column data
         self.dheaders = dheaders #labels for each data item, id or key
         self.edits = edits #log of edits created on this data structure
+        self.dname = '' #the data structure identifier
 
 class TableFormat(DataStructure):
     def __init__(self, dmode=DataMode.TABLE, dtype: list[DataType]= None, dformat=[], dheaders=[],edits=[], data=pd.DataFrame()):

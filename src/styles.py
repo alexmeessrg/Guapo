@@ -95,6 +95,28 @@ QTextEdit {
 }
 """
 
+    small_button = """
+QPushButton {
+    background: rgba(128, 128, 128, 16);;
+    color: white;
+    border: none;
+    padding: 0px 0px;
+    border-radius: 4px;
+    font-size: 12pt;
+}
+QPushButton:hover {
+    background: linear-gradient(to bottom, #2980B9, #1F618D);
+    border: 2px solid #454545
+}
+QPushButton:pressed {
+    background: linear-gradient(to bottom, #154360, #0E374A);
+}
+QPushButton:disabled {
+    background: #2C3E50;
+    color: #7F8C8D;
+}
+"""
+
 
 
     @classmethod
