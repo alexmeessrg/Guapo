@@ -1,5 +1,5 @@
 # Guapo
- A data wrangling, analysis and visualization tool.
+ A tool for data cleaning, handling, analysis and visualization. Work on numeric data, text, dates, geospatial data and more.
  Created by Alex Mees
 
 ## Features
