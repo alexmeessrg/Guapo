@@ -34,6 +34,9 @@ WORLD_COUNTRIES = {
     "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", 
     "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 } #to check for geographic data
+M_MONTH_NAMES = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+MM_MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december']
+
 
 
 BLOCKED_WORD_LIST = {'bad word1', 'bad word 2', 'bad word 3'} #built in BLOCKED WORDS for testing

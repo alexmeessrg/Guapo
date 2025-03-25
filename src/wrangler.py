@@ -8,6 +8,8 @@ License: MIT
 # Standard library imports
 import math
 from typing import Tuple
+import re
+from datetime import datetime
 
 
 # Third-party imports
@@ -103,6 +105,15 @@ class Wrangler:
 
     @staticmethod
     def check_type_number(data_list,sample_size) -> Tuple [int, int]: #give a grade for the likelyhood of it being a number column
+        """
+        Check if a sample of a list of strings can be converted to numbers
+        Args:
+        list[str] = the list of str to check.
+        [int] = sample size
+        Return:
+        [int] = total result for integer conversions (within sample)
+        [int] = total result for float conversions (within sample)
+        """
         data_size = len(data_list)
         sample_list = data_list[0:min(sample_size,data_size-1)] #get sample data from first "sample_size" items.
         total_int_positives = 0
@@ -119,6 +130,127 @@ class Wrangler:
                 except ValueError:
                     pass
         return total_int_positives, total_float_positives
+    
+    #The following methods will be used post initial loading to check if it is possible to change to change column to another data type.
+    @staticmethod
+    def check_type_date(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of string is valid date format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        items = data_column
+        data_format = data_format
+        regexp_pattern = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$'
+        m_month_names = "|".join(constants.M_MONTH_NAMES)
+        mm_month_names = "|".join(constants.MM_MONTH_NAMES)
+        """this regex 
+            (valid characters for day: numbers from 01 to 09 0[1-9] + numbers from 10 to 29 [12][0-9] + numbers from 30 to 31 3[01])
+            (valid characters for month: numbers from 01 to 09 + numbers from 10 to 12)
+            (valid characters for year): any 4 digits
+            after must check for valid date
+        """
+        match data_format:
+            case "DD/MM/YYYY":
+                regexp_pattern = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$'
+            case "DD-MM-YYYY":
+                regexp_pattern = r'^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$'
+            case "YYYY/MM/DD":
+                regexp_pattern = r'^\d{4}/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])'
+            case "YYYY-MM-DD":
+                regexp_pattern = r'^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'
+            case "DD.MM.YYYY":
+                regexp_pattern = r'^(0[1-9]|[12][0-9]|3[01]).(0[1-9]|1[0-2]).\d{4}$'
+            case "MM/DD/YYYY":
+                regexp_pattern = r'^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}$'
+            case "m DD, YYYY":
+                regexp_pattern = fr'({m_month_names}) \d{2}, \d{4}$'
+            case "mm DD, YYYY":
+                regexp_pattern = fr'({mm_month_names}) \d{2}, \d{4}$'
+            case "DD mm YYYY":
+                regexp_pattern = fr'^(0[1-9]|[12][0-9]|3[01]) {mm_month_names} \d{4}$'
+            case "YYYYMMDD":
+                regexp_pattern = r'\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])'
+            case _:
+                return False, 0 #failed at initial step
+            
+        result = all(re.fullmatch(regexp_pattern, item) for item in items) #TRUE = conversions where possible, FALSE = at least on conversion was not possible
+
+        if (result):
+            return True, 0 #success
+        else:
+            failed_conversions = len([item for item in items if not re.fullmatch(regexp_pattern, item)])
+            return False, failed_conversions #failed at pattern matching
+
+    @staticmethod
+    def check_type_time(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of strings is valid time format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        pass
+
+    @staticmethod
+    def check_type_geospatial(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of strings is valid geospatial format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        pass
+
+    @staticmethod
+    def check_type_vector(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of strings is valid vector format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        pass
+
+    @staticmethod
+    def check_type_dictionary(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of strings is valid dictionary format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        pass
+
+    @staticmethod
+    def check_type_time(data_column: list[str], data_format: str=None) -> Tuple [bool, int]:
+        """
+        Check if a list of strings is valid Boolean format.
+        Args:
+        list[str] = the list of str to check.
+        [str] = intended format type, if any
+        Return:
+        [bool] = result of the operation
+        [int] = number of invalid conversions (if >0 return Failed (false) result)
+        """
+        pass
+
 
 
 

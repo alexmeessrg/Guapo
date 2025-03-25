@@ -45,7 +45,6 @@ class main:
         
         self.current_dataset_index = -1
         self.datasets: list[TableFormat] = [] #this holds all the data sets loaded by the system. [Limit size?]
-        self.connect_all_functions()
         
         #Pre-GUI test
         print("xxxxxxx Doing tests here xxxxxxxx")
@@ -73,46 +72,12 @@ class main:
         sys.exit(self.app.exec()) #putting this here so it won't block the rest of the commands.
 
     
-    # ==== Open Files by Types ====
-    def open_CSV(self,file_path) -> Tuple [pd.DataFrame,list[DataType], str, bool, str]:
-        """
-        Initialize file opening and data handling for CSV
-
-        Args:
-        file_path (str) = full file path
-
-        Outputs:
-        DataFrame = the dataframe of the processed data set
-        list[DataType] = the Data Types enum for the data set
-        str = the delimiter
-        bool = if data has delimiter
-        str = the error string
-        """
-        raw_data, error = Fetcher.read_CSV(file_path)
-        if not (error):
-            data, data_types, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it
-            if not (error):
-                return data, data_types, delimiter, has_header, error
-            else:
-                return None, None, None, None, error   
-        else:
-            return None, None, None, None, error
-        
-    def open_SQLite(self,file_path):
-        """
-        Initialize data connection and data handling for SQL
-
-        Args:
-        file_path (str) = full file path
-        """
-        #"E:/GUAPO/guapo/sample/sampleSQL.db"
-        Fetcher.read_SQLite(file_path) #TODO: replace with proper file path
 
 
 
-    # ==== GUI initialization scripts ====
-    # === Actions for GUI buttons ===
 
+
+# region GUI actions
     # == Method for removing whitespace
     def baction_str_whitespace(self):
         """
@@ -123,22 +88,24 @@ class main:
             option = 'all'
             match self.window.cb_str_combo2.currentIndex():
                 case 0:
-                    capitalization_option = 'trailing'
+                    option = 'trailing'
                 case 1:
-                    capitalization_option = 'leading'
+                    option = 'leading'
                 case 2:
-                    capitalization_option = 'both'
+                    option = 'both'
                 case 3:
-                    capitalization_option = 'doubles'
+                    option = 'doubles'
                 case 4:
-                    capitalization_option = 'all'
+                    option = 'all'
                 case _:
                     raise ValueError
             
-            self.datasets[self.current_dataset_index].remove_whitespace(col_index, option)
-            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-            self.window.add_to_log([self.datasets[self.current_dataset_index].data.columns[col_index], col_index, option],'str_whitespace')
-            self.window.update_statusbar('Whitespace removal Operation')
+            print(f"Capitalization Option: {option}")
+            if not (self.window.dataset_column_index < 0):
+                self.datasets[self.current_dataset_index].remove_whitespace(col_index, option)
+                self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
+                self.window.add_to_log([self.datasets[self.current_dataset_index].data.columns[col_index], col_index, option],'str_whitespace')
+                self.window.update_statusbar('Whitespace removal Operation')
                     
         except IndexError:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_whitespace", Wrong data column index.')
@@ -146,12 +113,6 @@ class main:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_whitespace", Wrong method option.')
         except:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_whitespace", Unknown error.')
-
-
-        if not (self.window.dataset_column_index < 0):
-            self.datasets[self.current_dataset_index].remove_whitespace(self.window.dataset_column_index,'doubles')
-            self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-            #print(self.datasets[self.current_dataset_index].data.iloc[:,self.window.dataset_column_index].to_list())
     
     # == Method for capitalization rule
     def baction_str_capitalization(self):
@@ -161,7 +122,7 @@ class main:
         try:
             col_index = self.window.dataset_column_index
             option = 'all' #the capitalization rule option
-            match self.window.cb_str_combo2.currentIndex():
+            match self.window.cb_str_combo1.currentIndex():
                 case 0:
                     option = 'all'
                 case 1:
@@ -177,15 +138,16 @@ class main:
             
             self.datasets[self.current_dataset_index].capitalization_rule(col_index, option)
             self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-            self.window.add_to_log([self.datasets[self.current_dataset_index].columns[col_index], col_index, option],'str_capitalization')
+            a = self.datasets[self.current_dataset_index]
+            self.window.add_to_log([self.datasets[self.current_dataset_index].dheaders[col_index], col_index, option],'str_capitalization')
             self.window.update_statusbar('Capitalization Operation')
                     
         except IndexError:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_capitalization", Wrong data column index.')
         except ValueError:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_capitalization", Wrong method option.')
-        except:
-            self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_capitalization", Unknown error.')
+        except Exception as e:
+            self.window.update_statusbar(f'[ERROR] File "main.py", Function "baction_str_capitalization",\n{e}')
 
     # == Method for blocked words rule
     def baction_str_blocked_words(self):
@@ -239,8 +201,59 @@ class main:
         except:
             self.window.update_statusbar('[ERROR] File "main.py", Function "baction_str_blocked_word", Unknown error.')        
 
+    def baction_str_statistics(self):
+        pass
 
-    #load tabulated data button click
+    def baction_str_duplicates(self):
+        pass
+
+    def baction_str_split(self):
+        pass
+
+    def baction_num_operate_int(self):
+        pass
+    
+    def baction_num_operate_float(self):
+        pass
+#endregion
+
+# region FILE HANDLING
+
+    # ==== Open Files by Types ====
+    def open_CSV(self,file_path) -> Tuple [pd.DataFrame,list[DataType], str, bool, str]:
+        """
+        Initialize file opening and data handling for CSV
+
+        Args:
+        file_path (str) = full file path
+
+        Outputs:
+        DataFrame = the dataframe of the processed data set
+        list[DataType] = the Data Types enum for the data set
+        str = the delimiter
+        bool = if data has delimiter
+        str = the error string
+        """
+        raw_data, error = Fetcher.read_CSV(file_path)
+        if not (error):
+            data, data_types, delimiter, has_header, error = Wrangler.handle_tabulated(raw_data) #this take the raw text data and process it
+            if not (error):
+                return data, data_types, delimiter, has_header, error
+            else:
+                return None, None, None, None, error   
+        else:
+            return None, None, None, None, error
+        
+    def open_SQLite(self,file_path):
+        """
+        Initialize data connection and data handling for SQL
+
+        Args:
+        file_path (str) = full file path
+        """
+        #"E:/GUAPO/guapo/sample/sampleSQL.db"
+        Fetcher.read_SQLite(file_path) #TODO: replace with proper file path
+
     def get_file_path_by_type(self, type='CSV'):
         """
         Send the type str (a lambda input for the button connected function) to the actual function that calls the dialog window.
@@ -251,8 +264,7 @@ class main:
         
         """
         self.get_file_path(self.window.centralWidget(),type, pointed_path='E:/GUAPO') #match/case handling in the called method
-
-    #data reading scripts
+   
     def get_file_path(self,parent_window, type='CSV', pointed_path=''):
         """
         Gets file path for the selected file, according to type filter. 
@@ -311,7 +323,6 @@ class main:
             self.window.update_statusbar(f'[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.\n{e}')
             print(f'{e}')
 
-
     def process_read_data(self, file_path: str='', type: str=''):
         try:
             match type:
@@ -344,9 +355,20 @@ class main:
             self.block_execution = False
             self.window.update_statusbar(f'[ERROR] File "main.py", Function "get_file_path", Unknown error when getting file path.\n{e}')
             print(f'{e}')
+    
+    def delete_dataset(self):
+        """
+        Remove selected data set.
+        TODO: re-order remaining data sets and clean UI.
+        """
+        index = self.current_dataset_index
 
-    
-    
+        del self.datasets[index]
+
+# endregion
+
+# region DATA HANDLING
+
     def return_col_type(self,data_item=-1, col=-1) -> DataType:
         """
         Gets the Data Type of selected column (ex: clicked)
@@ -379,30 +401,7 @@ class main:
         self.window.table.setRowCount(len(self.datasets[self.current_dataset_index].data.values.tolist()))
         self.window.table.setColumnCount(len(self.datasets[self.current_dataset_index].data.columns.to_list()))        
         self.window.set_headers(self.datasets[self.current_dataset_index].data.columns.to_list())
-        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
-
-
-
-    #data wrangling scripts
-
-
-    #data writing scripts
-
-
-    #data visualization scripts
-    
-
-    # === Connect main methods to GUI buttons ===
-    def connect_all_functions(self): #!!!!!!!!!!REMOVE THIS AND ADD THE FUNCTIONS DIRECTLY TO THE REFERENCE TO MAIN INSIDE GUI.PY
-        """
-        Connect main methods to GUI actions (ex: clicked)
-        """        
-        self.window.b_str_whitespaces.clicked.connect(self.baction_str_whitespace)
-        self.window.b_str_capitalize.clicked.connect(self.baction_str_capitalization)
-        self.window.b_str_blocked.clicked.connect(self.baction_str_blocked_words)
-        self.window.b_str_dictionary.clicked.connect(self.baction_str_dictionary_words)  
-
-        self.window.b_DS_open_tabulated.clicked.connect(lambda: self.get_file_path_by_type('CSV'))
+        self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())      
 
     def update_dataframe_column(self, dataset_index = -1, data_frame_col = -1, new_type = DataType.TEXT, new_format = '') -> bool:
         """
@@ -419,9 +418,7 @@ class main:
         print(f'Dataset:[{dataset_index}], DataColumn:[{data_frame_col}], New Data Type:[{str(new_type)}]')
         return True
 
-    def print_something(self):
-        print ('SUCCESFULLY PRINTED')
-
+#endregion
 
 if __name__ == '__main__':
     main()

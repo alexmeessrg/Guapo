@@ -11,6 +11,7 @@ from enum import Enum
 
 # Third-party imports
 import pandas as pd
+import numpy as np
 
 # Local application imports
 
@@ -32,6 +33,25 @@ class DataType(Enum):
         return list(self.__class__).index(self)  # Convert to int using index
 
     #column info example: {type=DataType.DATE, format='DD/MM/YYYY'}
+
+class NumericOperation(Enum):
+    ADDITION = 1
+    SUBTRACTION = 2
+    MULTIPLICATION = 3
+    DIVISION = 4
+    LOG = 5
+    EXPONENTIAL = 6
+    POWER = 7
+    ROOT = 8
+    CLAMP = 9
+
+    def __str__(self):
+        return self.name    
+    
+    def __int__(self):
+        return list(self.__class__).index(self)  # Convert to int using index
+
+
 
 class DataFormats(): #some extra especial formating for data types (used to change display and converting storage format)
     FloatFormats = ['0.0','1eN','1/1','%','Binary','Hex','Octal','Currency']
@@ -58,15 +78,16 @@ class TableFormat(DataStructure):
         super().__init__(dmode=DataMode.TABLE, dtype=dtype, dformat=dformat, dheaders=dheaders,edits=edits)
         self.data = data
 
-    # ===== METHODS TO CLEAN STRING DATA ===== #
+    # ===== METHODS TO OPERATE STRING DATA ===== #
     #Method to deal with whitespaces
-    def remove_whitespace(self, c_index=0, option='trailing') -> str: #the result string
+    def remove_whitespace(self, c_index=0, option='') -> str: #the result string
         #options are trailing, leading, both, double space, all of the above
         if (self.dtype[c_index]==DataType.TEXT):
             c_name = self.data.columns[c_index]
             match option:
                 case 'trailing':
                     self.data[c_name] = self.data[c_name].str.rstrip()
+                    print("Removed Trailing")
                 case 'leading':
                     self.data[c_name] = self.data[c_name].str.lstrip()
                 case 'both':
@@ -116,7 +137,6 @@ class TableFormat(DataStructure):
             return None #no errors
         return 'Error: not a text column.'
 
-    
     # Method to deal with dictionary words
     def dictionary_words(self, c_index=0, old_list=[''], new_list=['']) -> str: #the result string (None if OK)
         if (self.dtype[c_index]==DataType.TEXT): #if column is a string column
@@ -137,7 +157,105 @@ class TableFormat(DataStructure):
                 word_count.append(sum(len(hit) for hit in hits))
             return unique_words, word_count, None #no errors
         return None, None, 'Error: not a text column.'  
-     
+    
+    # ===== METHODS TO OPERATE NUMERIC DATA ===== #
+    def operate_int(self, c_index=0, col_data: pd.Series=[], operation: NumericOperation = NumericOperation.ADDITION, num_arg: int=1) -> Tuple [bool, str, pd.Series]:
+        """
+        Operates on specified INTEGER column. Can be inputed many times to generate the desired operations and them applied to underlying data frame.
+        Args:
+        [int]: the column index in the dataframe.
+        [Pandas.Series]: actual series of values
+        [NumericOperation]: the operation to realize
+        num_arg: the numerical argument
+        Return:
+        [bool]:result of the operation
+        [str]:error result
+        [Pandas.Series]: the resulting values of the operation (not applied, should apply later)
+        """
+        try: 
+            col_name = self.data.columns[c_index]
+            if (self.type[c_index]==DataType.INTEGER and (self.data[col_name].dtype== 'int32' or self.data[col_name].dtype== 'int64')): #check for correct input types
+                match operation:
+                    case NumericOperation.ADDITION:
+                        result_series = col_data + num_arg
+                    case NumericOperation.SUBTRACTION:
+                        result_series = col_data - num_arg
+                    case NumericOperation.MULTIPLICATION:
+                        result_series = col_data * num_arg
+                    case NumericOperation.DIVISION:
+                        result_series = col_data / num_arg
+                    case NumericOperation.LOG:
+                        result_series =  np.log(col_data) if num_arg==0 else np.log10(col_data)
+                    case NumericOperation.EXPONENTIAL:
+                        result_series =  np.exp(col_data)
+                    case NumericOperation.POWER:
+                        result_series =  np.power(num_arg, col_data)
+                    case NumericOperation.ROOT:
+                        result_series = np.roots(num_arg, col_data)
+                    case _:
+                        return False, None
+                    
+                result_series = result_series.astype(int) #keep int type
+
+                log_message = f"""<div>Numeric operation (int) in <span style="color: gray;">Col: {col_name}[{c_index}] - Operation: {str(operation)}</span></div>"""
+                return True, log_message, result_series
+            
+            else: #wrong data type
+                return False, '[ERROR] File "data_format.py", Function "operate_int", Wrong operation type', None
+          
+        except Exception as e:
+            error_message = f'[ERROR] File "data_format.py", Function "operate_int"\n{e}'
+            return False, error_message, None
+            
+    def operate_float(self, c_index=0, col_data: pd.Series=[], operation: NumericOperation = NumericOperation.ADDITION, num_arg: float=1.0) -> Tuple [bool, str, pd.Series]:
+        """
+        Operates on specified INTEGER column. Can be inputed many times to generate the desired operations and them applied to underlying data frame.
+        Args:
+        [int]: the column index in the dataframe.
+        [Pandas.Series]: actual series of values
+        [NumericOperation]: the operation to realize
+        num_arg: the numerical argument
+        Return:
+        [bool]:result of the operation
+        [str]:error result
+        [Pandas.Series]: the resulting values of the operation (not applied, should apply later)
+        """
+        try: 
+            col_name = self.data.columns[c_index]
+            if (self.type[c_index]==DataType.FLOAT and (self.data[col_name].dtype== 'float32' or self.data[col_name].dtype== 'float64')): #check for correct input types
+                match operation:
+                    case NumericOperation.ADDITION:
+                        result_series = col_data + num_arg
+                    case NumericOperation.SUBTRACTION:
+                        result_series = col_data - num_arg
+                    case NumericOperation.MULTIPLICATION:
+                        result_series = col_data * num_arg
+                    case NumericOperation.DIVISION:
+                        result_series = col_data / num_arg
+                    case NumericOperation.LOG:
+                        result_series =  np.log(col_data) if num_arg==0 else np.log10(col_data)
+                    case NumericOperation.EXPONENTIAL:
+                        result_series =  np.exp(col_data)
+                    case NumericOperation.POWER:
+                        result_series =  np.power(num_arg, col_data)
+                    case NumericOperation.ROOT:
+                        result_series = np.roots(num_arg, col_data)
+                    case _:
+                        return False, None
+                    
+
+                log_message = f"""<div>Numeric operation (float) in <span style="color: gray;">Col: {col_name}[{c_index}] - Operation: {str(operation)}</span></div>"""
+                return True, log_message, result_series
+            
+            else: #wrong data type
+                return False, '[ERROR] File "data_format.py", Function "operate_float", Wrong operation type', None
+          
+        except Exception as e:
+            error_message = f'[ERROR] File "data_format.py", Function "operate_float"\n{e}'
+            return False, error_message, None    
+
+
+    # ===== METHODS TO SEARCH DATA ===== #
     # Method to get search results
     def search_result(self, c_index=0, search_string='') -> Tuple [list, str]: #the table filter index, the result string (None if OK)
         if (self.dtype[c_index]==DataType.TEXT): #if column is a string column

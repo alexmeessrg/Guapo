@@ -24,7 +24,7 @@ class Fetcher:
     def read_CSV(file_path) -> Tuple[list, str]: #to read from tabulated files
         try:
             with open(file_path, "r", encoding="utf-8") as file: #this also auto-close file after reading.
-                content = [line.strip() for line in file.readlines()] #removes \n and leading, trailing whitespaces
+                content = [line for line in file.readlines()]
                 if len(content)==0:
                     return None, f"Empty file: {file_path}"
                 else:

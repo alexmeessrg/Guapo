@@ -143,7 +143,6 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.main = main #reference for the main method, to access its methods.
-        self.main.print_something()
 
         # Method to create a new button (only called inside the class)
         def _CreateButton(name='',fixedsize=[52,52],iconpath=None,iconsize=[48,48],tooltip=None) -> QPushButton:
@@ -217,6 +216,12 @@ class MainWindow(QMainWindow):
         read_layout.addWidget(self.b_DS_open_SQLite)
         read_layout.addWidget(self.b_DS_open_SQL)
 
+        self.b_DS_open_tabulated.clicked.connect(lambda: self.main.get_file_path_by_type('CSV'))
+        self.b_DS_open_JSON.clicked.connect(lambda: self.main.get_file_path_by_type('JSON'))
+        self.b_DS_open_SQLite.clicked.connect(lambda: self.main.get_file_path_by_type('SQLite'))
+        self.b_DS_open_XLS.clicked.connect(lambda: self.main.get_file_path_by_type('XLS'))
+
+
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
@@ -242,6 +247,17 @@ class MainWindow(QMainWindow):
         self.b_str_duplicates = _CreateButton('Duplicates',[192,52],None,[48,48],'Identify duplicate data.')
         self.b_str_whitespaces = _CreateButton('White Spaces',[192,52],None,[48,48],'Handles whitespace cleaning.')
         self.b_str_breakcolumn = _CreateButton('Split on Delimiter',[192,52],None,[48,48],'Split a data column in 2 or more, acoording to specified delimiter.')
+
+        #Connected Actions for Buttons
+        self.b_str_whitespaces.clicked.connect(self.main.baction_str_whitespace)
+        self.b_str_capitalize.clicked.connect(self.main.baction_str_capitalization)
+        self.b_str_blocked.clicked.connect(self.main.baction_str_blocked_words)
+        self.b_str_dictionary.clicked.connect(self.main.baction_str_dictionary_words)
+        
+        #TODO: UNCOMMENT THESE LATER
+        #self.b_str_duplicates.clicked.connect()
+        #self.b_str_statistics.clicked.connect()
+        #self.b_str_breakcolumn.clicked.connect()
         
         #Combo boxes
         #Capitalize
@@ -452,22 +468,20 @@ class MainWindow(QMainWindow):
                 case 'str_dictionary':
                     formated_message = f"""<div>Dictionary words applied <span style="color: gray;">Col: {message[0]}[{message[1]}] - Number of Changes: {message[2]}</span></div>"""
                 case _:
-                    formated_message = '[ERROR] File "gui.py", Function "add_to_log", Bad message type.'
-                    raise ValueError
+                    formated_message = message[0]
 
             self.log_window.setHtml(f"""{self.log_window.toHtml()}{formated_message}""")
 
         except IndexError:
             formated_message = '[ERROR] File "gui.py", Function "add_to_log", Message index error.'
+            self.update_statusbar(formated_message)
         except ValueError:
             formated_message = '[ERROR] File "gui.py", Function "add_to_log", Bad message log type error.'
+            self.update_statusbar(formated_message)
         except:
             formated_message = '[ERROR] File "gui.py", Function "add_to_log", Unknown error.'
             self.update_statusbar(formated_message)
-
-
-
-    
+ 
     def on_column_selected(self, column: int): #this will trigger when a column header is selected, updating the bottom Status Bar and Activity log 
         header_item = self.table.horizontalHeaderItem(column)
         if (header_item):
