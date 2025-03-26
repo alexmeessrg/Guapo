@@ -87,7 +87,6 @@ class TableFormat(DataStructure):
             match option:
                 case 'trailing':
                     self.data[c_name] = self.data[c_name].str.rstrip()
-                    print("Removed Trailing")
                 case 'leading':
                     self.data[c_name] = self.data[c_name].str.lstrip()
                 case 'both':
@@ -158,6 +157,14 @@ class TableFormat(DataStructure):
             return unique_words, word_count, None #no errors
         return None, None, 'Error: not a text column.'  
     
+    def remove_duplicates(self, c_index=0):
+        pass
+
+    def split_text(self, c_index=0, delimiter=''):
+        pass
+
+    
+
     # ===== METHODS TO OPERATE NUMERIC DATA ===== #
     def operate_int(self, c_index=0, col_data: pd.Series=[], operation: NumericOperation = NumericOperation.ADDITION, num_arg: int=1) -> Tuple [bool, str, pd.Series]:
         """
@@ -174,7 +181,8 @@ class TableFormat(DataStructure):
         """
         try: 
             col_name = self.data.columns[c_index]
-            if (self.type[c_index]==DataType.INTEGER and (self.data[col_name].dtype== 'int32' or self.data[col_name].dtype== 'int64')): #check for correct input types
+
+            if (self.dtype[c_index]==DataType.INTEGER and (self.data[col_name].dtype== 'int32' or self.data[col_name].dtype== 'int64')): #check for correct input types
                 match operation:
                     case NumericOperation.ADDITION:
                         result_series = col_data + num_arg
@@ -193,7 +201,8 @@ class TableFormat(DataStructure):
                     case NumericOperation.ROOT:
                         result_series = np.roots(num_arg, col_data)
                     case _:
-                        return False, None
+                        print ("Not valid operation")
+                        return False, None, None
                     
                 result_series = result_series.astype(int) #keep int type
 
@@ -222,7 +231,7 @@ class TableFormat(DataStructure):
         """
         try: 
             col_name = self.data.columns[c_index]
-            if (self.type[c_index]==DataType.FLOAT and (self.data[col_name].dtype== 'float32' or self.data[col_name].dtype== 'float64')): #check for correct input types
+            if (self.dtype[c_index]==DataType.FLOAT and (self.data[col_name].dtype== 'float32' or self.data[col_name].dtype== 'float64')): #check for correct input types
                 match operation:
                     case NumericOperation.ADDITION:
                         result_series = col_data + num_arg
@@ -255,6 +264,20 @@ class TableFormat(DataStructure):
             return False, error_message, None    
 
 
+    def clamp_int(self, col_data: pd.Series=[], low_range: int=0, high_range: int=10) -> pd.Series:
+        """
+        Clamps integer data in range
+        """    
+        return col_data.clip(lower=low_range, upper=high_range).astype(int)
+    
+    def clamp_float(self, col_data: pd.Series=[], low_range: float=0, high_range: float=10) -> pd.Series:
+        """
+        Clamps integer data in range
+        """    
+        return col_data.clip(lower=low_range, upper=high_range).astype(float)
+
+    
+    
     # ===== METHODS TO SEARCH DATA ===== #
     # Method to get search results
     def search_result(self, c_index=0, search_string='') -> Tuple [list, str]: #the table filter index, the result string (None if OK)

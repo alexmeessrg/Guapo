@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidg
                              QPushButton, QWidget, QMenuBar, QFrame, QSizePolicy, QTabWidget, QLabel, QTextEdit, 
                              QStatusBar, QStackedWidget, QRadioButton, QButtonGroup, QComboBox, QScrollArea, QFileDialog,
                              QDialog, QLineEdit)
-from PyQt6.QtGui import QAction, QIcon, QPalette, QColor
+from PyQt6.QtGui import QAction, QIcon, QPalette, QColor, QIntValidator, QDoubleValidator
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 
 import seaborn as sns
@@ -24,7 +24,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
 # Local application imports
 from . import styles
-from .data_format import DataType
+from .data_format import (DataType, NumericOperation)
 
 class DataSetItem(QWidget):
     "A class to create a data set item with widget controls."
@@ -135,6 +135,18 @@ class DataSetItem(QWidget):
         """
         self.parent.main.update_database_selected(self.index)
 
+class NumericDataManipulation(QDialog):
+    """
+    A dialog class to show buttons for numeric data handling."
+    """
+    def __init__(self, data_set_name='',item_index = 0, header=None, data_type: DataType=None, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(f'Modify {header}')
+        self.setModal(True)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal) #blocks input to main window
+
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Numeric Operations Dialog"))
 
 
 
@@ -253,11 +265,9 @@ class MainWindow(QMainWindow):
         self.b_str_capitalize.clicked.connect(self.main.baction_str_capitalization)
         self.b_str_blocked.clicked.connect(self.main.baction_str_blocked_words)
         self.b_str_dictionary.clicked.connect(self.main.baction_str_dictionary_words)
-        
-        #TODO: UNCOMMENT THESE LATER
-        #self.b_str_duplicates.clicked.connect()
-        #self.b_str_statistics.clicked.connect()
-        #self.b_str_breakcolumn.clicked.connect()
+        self.b_str_duplicates.clicked.connect(self.main.baction_str_duplicates)
+        self.b_str_statistics.clicked.connect(self.main.baction_str_statistics)
+        self.b_str_breakcolumn.clicked.connect(self.main.baction_str_split)
         
         #Combo boxes
         #Capitalize
@@ -295,7 +305,7 @@ class MainWindow(QMainWindow):
         # STATISTICS: MEAN, MEDIAN, MODE, STANDARD DEVIATION, SKEWNESS, KURTOSIS, LENGTH
         
         self.num_tools_layout = QVBoxLayout()
-        self.num_tools_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.num_tools_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         #Buttons for numeric operations
         self.b_num_offset = _CreateButton('Offset Values',[192,52],None,[48,48],'Add/subtract to values. Does NOT change numeric type (INT/FLOAT). INT will be round to nearest integer.')
@@ -305,13 +315,59 @@ class MainWindow(QMainWindow):
         self.b_num_convert_to_float = _CreateButton('Int=>Float',[192,52],None,[48,48],'Convert data type from integer to float (decimal) values.')
         self.b_num_convert_to_integer = _CreateButton('Float=>Int',[192,52],None,[48,48],'Convert data type from float (decimal) to integer. INT will be round to nearest integer.')
 
+        self.v_num_offset = QLineEdit(self)
+        self.v_num_offset.setPlaceholderText("0")
+        self.v_num_offset.setValidator(QDoubleValidator())
+        self.v_num_offset.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.v_num_offset.setContentsMargins(0,0,0,10)
+        
+        self.v_num_scale = QLineEdit(self)
+        self.v_num_scale.setPlaceholderText("0")
+        self.v_num_scale.setValidator(QDoubleValidator())
+        self.v_num_scale.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.v_num_scale.setContentsMargins(0,0,0,10)
+        
+        self.v_num_clamplo = QLineEdit(self)
+        self.v_num_clamplo.setPlaceholderText("0")
+        self.v_num_clamplo.setText("0")
+        self.v_num_clamplo.setValidator(QDoubleValidator())
+        self.v_num_clamplo.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.v_num_clamplo.setContentsMargins(0,0,0,10)
+        self.v_num_clamplo.setToolTip("Clamp Low Range")
+        
+        self.v_num_clamphi = QLineEdit(self)
+        self.v_num_clamphi.setPlaceholderText("10000")
+        self.v_num_clamphi.setText("10000")
+        self.v_num_clamphi.setValidator(QDoubleValidator())
+        self.v_num_clamphi.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.v_num_clamphi.setContentsMargins(0,0,0,10)
+        self.v_num_clamphi.setToolTip("Clamp High Range")
+        
+        self.v_num_clamps = QHBoxLayout()
+        self.v_num_clamps.addWidget(self.v_num_clamplo)
+        self.v_num_clamps.addWidget(self.v_num_clamphi)
+       
+
+        
+            
+        
+        #connect to NUM functions
+        self.b_num_clamp.clicked.connect(self.num_type_clamp)
+        self.b_num_offset.clicked.connect(self.num_type_offset)
+        
+        
+        
         #Add buttons to layout
         self.num_tools_layout.addWidget(QLabel('Numeric Data Operators'))
         self.num_tools_layout.addWidget(separator)
         self.num_tools_layout.addWidget(self.b_num_offset)
+        self.num_tools_layout.addWidget(self.v_num_offset)
         self.num_tools_layout.addWidget(self.b_num_scale)
+        self.num_tools_layout.addWidget(self.v_num_scale)
         self.num_tools_layout.addWidget(self.b_num_logscale)
         self.num_tools_layout.addWidget(self.b_num_clamp)
+        self.num_tools_layout.addLayout(self.v_num_clamps)
+        
         self.num_tools_layout.addWidget(self.b_num_convert_to_float)
         self.num_tools_layout.addWidget(self.b_num_convert_to_integer)
 
@@ -443,8 +499,10 @@ class MainWindow(QMainWindow):
             if (message):
                 self.status_bar.showMessage(message)
                 self.status_bar.show()
-    """
-    === Method to update log window ===
+
+    def add_to_log(self, message=[], messagetype=''): #message arguments and how to format it by type
+        """
+        === Method to update log window ===
         = Message Type Conventions =
         messagetype: 'str_capitalization'
             message: [Column Name, Column Index, Capitalization Format]
@@ -454,8 +512,7 @@ class MainWindow(QMainWindow):
             message: xxxx
         messagetype? 'str_dictionary
 
-    """
-    def add_to_log(self, message=[], messagetype=''): #message arguments and how to format it by type
+        """
         formated_message = ''      
         try:
             match messagetype:
@@ -503,29 +560,7 @@ class MainWindow(QMainWindow):
                 case _:
                     pass
              #TODO: JUST FOR TESTING REMOVE
-
-    
-    def b_connect_whitespace(self,option='doubles'):
-        self.main.baction_str_whitespace()
-    
-    
-    
-    
-    # this methods will be called from outside the class to update visuals and data     
-    def set_event_handlers(self, target, function): #use this to add main.py functions to the GUI buttons.
-        match target:
-            case "table":
-                self.table.selectionModel().selectionChanged.connect(function) #add the 'normal' event handler and additionally another one.
-            case "b_str_blocked":
-                self.b_str_blocked.clicked.connect(function)
-            case "b_str_whitespace":
-                self.b_str_whitespaces.clicked.connect(function)
-    
-    def click_event_handlers(self, target, function): #use this to add main.py functions to the GUI buttons.
-        target.clicked.connect(function)
-
-
-    
+       
     def set_headers(self,headers): #set the headers for a spreadsheet
         self.table.setHorizontalHeaderLabels(headers)
 
@@ -562,9 +597,6 @@ class MainWindow(QMainWindow):
         self.data_set_item_layout.addWidget(dataset_item)
         print("Item added")
 
-
-
-
     def populate_dataset_selection(self,item_name): #use to create the list of data assets
         self.current_data_list.addWidget(QPushButton(item_name))
 
@@ -576,9 +608,36 @@ class MainWindow(QMainWindow):
                 widget.deleteLater()
             else:
                 self.clear_layout(item.layout())
+  
+    def num_type_clamp(self):
+        col_name = self.main.datasets[self.main.current_dataset_index].data.columns[self.dataset_column_index]
+        
+        if (self.main.datasets[self.main.current_dataset_index].dtype[self.dataset_column_index]==DataType.INTEGER):
 
+            self.main.baction_num_clamp_int(self.main.current_dataset_index, self.dataset_column_index, float(int(self.v_num_clamplo.text())), int(self.v_num_clamphi.text()))
 
+        else:
 
+            self.main.baction_num_clamp_float(self.main.current_dataset_index, self.dataset_column_index, float(int(self.v_num_clamplo.text())), float(self.v_num_clamphi.text()))
+    
+    def num_type_offset(self):
+        col_name = self.main.datasets[self.main.current_dataset_index].data.columns[self.dataset_column_index]
+
+        col_name = self.main.datasets[self.main.current_dataset_index].data.columns[self.dataset_column_index] #name of the data column
+        col_data = self.main.datasets[self.main.current_dataset_index].data[col_name].astype(int) #the actual data series
+
+        if (self.main.datasets[self.main.current_dataset_index].dtype[self.dataset_column_index]==DataType.INTEGER):
+            
+
+            self.main.baction_num_operate_int(self.main.current_dataset_index, self.dataset_column_index, col_data, NumericOperation.ADDITION, int(self.v_num_offset.text()))
+
+        else:
+
+            self.main.baction_num_operate_float(self.main.current_dataset_index, self.dataset_column_index, col_data, NumericOperation.ADDITION, float(self.v_num_offset.text()))
+        
+       
+
+        
                     
 
         

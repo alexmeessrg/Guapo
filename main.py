@@ -34,7 +34,7 @@ class main:
         self.window.show()
 
         # === MAIN VARIABLES SETUP ===
-        self.block_execution = False #set to wait till operation is over to allow processes
+        self.block_execution = False #set to wait till operation is over to allow processes (NOT USED NOW)
         self.active_directory = '' #the directory the file open dialog will be pointed at initially
         
         self.use_custom_blocked_list = False #which blocked word list to use
@@ -47,27 +47,8 @@ class main:
         self.datasets: list[TableFormat] = [] #this holds all the data sets loaded by the system. [Limit size?]
         
         #Pre-GUI test
-        print("xxxxxxx Doing tests here xxxxxxxx")
+        print("========= APP INITIALIZED ===============")
     
-        data, data_types, delimiter, has_header, error = self.open_CSV("E:/GUAPO/guapo/sample/sampleCSVdata.txt")
-    
-        if not (error):
-            pass
-            #for testing TODO:remove
-            #self.datasets.append(TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data))
-            #self.current_dataset_index = len(self.datasets) + 1
-
-            
-            #self.thisdata = TableFormat(DataMode.TABLE, dtype=[DataType.TEXT,DataType.INTEGER,DataType.INTEGER,DataType.TEXT],dformat=[], dheaders=data.columns.to_list(),data=data)
-
-             #this depends on having an existing self.thisdata -> this hard dependency must be removed.
-
-
-            #self.thisdata.search_result(0,'S')
-            #self.window.set_headers(['Country','Area','Population','Capital'])
-            #self.window.set_data_table(self.thisdata.data.values.tolist())
-        else:
-            print(error)
     
         sys.exit(self.app.exec()) #putting this here so it won't block the rest of the commands.
 
@@ -100,7 +81,6 @@ class main:
                 case _:
                     raise ValueError
             
-            print(f"Capitalization Option: {option}")
             if not (self.window.dataset_column_index < 0):
                 self.datasets[self.current_dataset_index].remove_whitespace(col_index, option)
                 self.window.set_data_table(self.datasets[self.current_dataset_index].data.values.tolist())
@@ -210,10 +190,72 @@ class main:
     def baction_str_split(self):
         pass
 
-    def baction_num_operate_int(self):
+    def baction_num_operate_int(self, dataset_index = 0, c_index=0, col_data: pd.Series=[], operation: NumericOperation = NumericOperation.ADDITION, num_arg: int=1):
+        col_name = self.datasets[dataset_index].data.columns[c_index] #name of the data column        
+
+        result, error, operated_data = self.datasets[dataset_index].operate_int(c_index,col_data,operation,num_arg)
+        print(operation)
+
+        if (result):
+            self.datasets[dataset_index].data[col_name] = operated_data.astype(int)
+            self.update_database_selected(dataset_index)
+            #ADD TO LOG
+
+        else:
+            #print(error)
+            pass
+
+    def baction_num_operate_float(self, dataset_index = 0, c_index=0, col_data: pd.Series=[], operation: NumericOperation = NumericOperation.ADDITION, num_arg: float=1.0):
+        col_name = self.datasets[dataset_index].data.columns[c_index] #name of the data column
+        col_data = self.datasets[dataset_index].data[col_name].astype(float) #the actual data series
+
+        result, error, operated_data = self.datasets[dataset_index].operate_float(c_index,col_data,operation,num_arg)
+        print(result)
+        print(error)
+
+        if (result):
+            self.datasets[dataset_index].data[col_name] = operated_data.astype(float)
+            self.update_database_selected(dataset_index)
+            #ADD TO LOG
+
+        else:
+            #print(error)
+            pass
+
+    def baction_num_clamp_int(self, dataset_index: int=-1, sel_data_col: int=-1, lo=0, hi=10):
+        """
+        Clamp int data between lo and hi ranges.
+        """
+        col_name = self.datasets[dataset_index].data.columns[sel_data_col] #the column name for the selected data, selected column
+        lo = int(self.window.v_num_clamplo.text()) #validation already occured on data entry
+        hi = int(self.window.v_num_clamphi.text()) #validation already occured on data entry
+
+        # Not applying directly the data operation so you can work iterating all the desired operations in the future
+        self.datasets[dataset_index].data[col_name] = self.datasets[dataset_index].clamp_int(col_data=self.datasets[dataset_index].data[col_name], low_range=lo, high_range=hi)
+        self.update_database_selected(dataset_index)
+        #ADD TO LOG
+
+    def baction_num_clamp_float(self, dataset_index: int=-1, sel_data_col: int=-1, lo=0.0, hi=10.0):
+        """
+        Clamp int data between lo and hi ranges.
+        """
+        col_name = self.datasets[dataset_index].data.columns[sel_data_col] #the column name for the selected data, selected column
+        lo = int(self.window.v_num_clamplo.text()) #validation already occured on data entry
+        hi = int(self.window.v_num_clamphi.text()) #validation already occured on data entry
+
+        # Not applying directly the data operation so you can work iterating all the desired operations in the future
+        self.datasets[dataset_index].data[col_name] = self.datasets[dataset_index].clamp_float(col_data=self.datasets[dataset_index].data[col_name], low_range=lo, high_range=hi)
+        
+        self.update_database_selected(dataset_index)
+
+    def baction_num_int2float(self):
         pass
-    
-    def baction_num_operate_float(self):
+        
+
+    def baction_num_float2int(self):
+        pass
+
+    def baction_num_clamp(self, range_min: float = 0.0, range_max: float = 1.0):
         pass
 #endregion
 
