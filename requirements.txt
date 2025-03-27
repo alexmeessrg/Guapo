@@ -2,3 +2,4 @@ PyQt6==6.8.1 #Note: must be manually installed
 Pandas==2.2.3 #Note: must be manually installed
 MatplotLib==3.10.0 #Note: must be manually installed
 Seaborn==0.13.2 #Note: must be manually installed
+NumPy===2.2.2 #Note: must be manually installed

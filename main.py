@@ -255,8 +255,6 @@ class main:
     def baction_num_float2int(self):
         pass
 
-    def baction_num_clamp(self, range_min: float = 0.0, range_max: float = 1.0):
-        pass
 #endregion
 
 # region FILE HANDLING
@@ -375,6 +373,10 @@ class main:
                         self.current_dataset_index = len(self.datasets)-1
                         self.update_database_selected(self.current_dataset_index)
                         self.window.add_dataset_item_entry(os.path.basename(file_path), len(self.datasets)-1, data.columns.tolist(), dataset_type)
+
+                        if (len(self.datasets)>0):
+                            self.window.no_data_label.hide()
+                            self.window.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
                         
                     self.block_execution = False
                 case 'JSON':
@@ -404,8 +406,30 @@ class main:
         TODO: re-order remaining data sets and clean UI.
         """
         index = self.current_dataset_index
+        try:
+            del self.datasets[index]
+        except IndexError as e:
+            self.window.update_statusbar(f'[ERROR] File "main.py", Function "delete_dataset".\n{e}')
+        except Exception as e:
+            self.window.update_statusbar(f'[ERROR] File "main.py", Function "delete_dataset".\n{e}')
 
-        del self.datasets[index]
+        self.window.clear_layout(self.window.data_set_item_layout) #clear and re-order if any datasets remaining
+        
+        if (len(self.datasets)==0): #if no data show the instruction label and reset other variables/layout
+            self.current_dataset_index = -1
+            self.window.dataset_column_index = -1
+            self.window.table.clear()
+            self.window.table.setRowCount(0)
+            self.window.table.setColumnCount(0)
+            self.window.no_data_label.show()
+            self.window.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        else: #if there is at least one dataset remaining re-build the data set order.
+            for index, dataset in enumerate(self.datasets):
+                self.window.add_dataset_item_entry(dataset.dname, index, dataset.dheaders, dataset.dtype)
+            self.current_dataset_index = 0
+            self.update_database_selected(self.current_dataset_index)
+
+
 
 # endregion
 

@@ -233,6 +233,8 @@ class MainWindow(QMainWindow):
         self.b_DS_open_SQLite.clicked.connect(lambda: self.main.get_file_path_by_type('SQLite'))
         self.b_DS_open_XLS.clicked.connect(lambda: self.main.get_file_path_by_type('XLS'))
 
+        self.b_DS_delete.clicked.connect(self.main.delete_dataset)
+
 
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
@@ -244,8 +246,10 @@ class MainWindow(QMainWindow):
         read_layout.addWidget(self.b_DS_delete)
 
         self.data_set_item_layout = QVBoxLayout() #layout for the list of loaded data sets
-        self.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.data_set_item_layout
+        self.data_set_item_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.no_data_label = QLabel("Load Data Set to start.")
+        self.no_data_label.setStyleSheet("font-weight: bold; font-size: 16pt; border: 3px solid #34495E; border-radius: 6px;")
+        self.data_set_item_layout.addWidget(self.no_data_label)
        
         # === DATA CLEANING TAB WIDGETS === (second tab)
         # === STRING TOOLS  === 
@@ -549,7 +553,7 @@ class MainWindow(QMainWindow):
             self.status_bar.show()
             self.log_window.setHtml(f"""{self.log_window.toHtml()}<div>Selected Column <span style="color: gray;">{column} - '{column_name}'</span></div>""")
             # tool bar to select
-            type = self.main.return_col_type(0, column)
+            type = self.main.return_col_type(self.main.current_dataset_index, column)
             match type:
                 case DataType.TEXT:
                     self.clean_tools_tab.setCurrentIndex(1)
@@ -596,6 +600,21 @@ class MainWindow(QMainWindow):
         dataset_item.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         self.data_set_item_layout.addWidget(dataset_item)
         print("Item added")
+
+    def clear_layout(self, layout=None):
+        """
+        Clear a widget an all its child widgets.
+        """
+        while layout.count():
+            item = layout.takeAt(0)  # Take the first item
+            widget = item.widget()   # Get the widget from the item
+            if widget is not None:
+                widget.deleteLater()  # Delete the widget
+            else:
+                # If the item is a layout (nested layouts), clear it recursively
+                sub_layout = item.layout()
+                if sub_layout:
+                    self.clear_layout(sub_layout)
 
     def populate_dataset_selection(self,item_name): #use to create the list of data assets
         self.current_data_list.addWidget(QPushButton(item_name))

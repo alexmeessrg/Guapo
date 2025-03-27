@@ -1,0 +1,201 @@
+Date,Product,Category,Quantity Sold,Unit Price,Total Sales
+2024-09-06,Laptop,Electronics,7,43.99,307.93
+2024-12-22,Blender,Home & Kitchen,6,208.81,1252.86
+2024-06-26,T-Shirt,Clothing,7,35.22,246.54
+2024-10-17,Headphones,Electronics,4,84.73,338.92
+2024-07-13,Smartphone,Electronics,9,408.22,3673.98
+2024-07-24,Headphones,Electronics,10,241.85,2418.5
+2025-01-07,T-Shirt,Clothing,9,45.54,409.86
+2024-03-30,T-Shirt,Clothing,2,450.53,901.06
+2024-10-25,Coffee Maker,Home & Kitchen,4,410.1,1640.4
+2024-11-18,Sneakers,Clothing,3,216.14,648.42
+2024-05-10,Headphones,Electronics,9,16.91,152.19
+2024-11-09,Microwave,Home & Kitchen,10,323.15,3231.5
+2024-11-30,Laptop,Electronics,5,173.18,865.9
+2024-08-08,Smartphone,Electronics,5,479.59,2397.95
+2024-06-23,Headphones,Electronics,4,60.57,242.28
+2024-08-25,T-Shirt,Clothing,2,37.68,75.36
+2024-09-14,Coffee Maker,Home & Kitchen,1,480.28,480.28
+2025-01-05,Headphones,Electronics,9,407.09,3663.81
+2024-06-12,Jeans,Clothing,5,49.06,245.3
+2024-05-15,Laptop,Electronics,5,383.88,1919.4
+2025-01-15,Laptop,Electronics,6,141.13,846.78
+2024-05-20,T-Shirt,Clothing,2,372.13,744.26
+2024-06-13,Jeans,Clothing,7,255.88,1791.16
+2024-12-21,Jeans,Clothing,2,112.74,225.48
+2025-02-21,Smartphone,Electronics,5,300.2,1501.0
+2024-07-29,Microwave,Home & Kitchen,3,358.03,1074.09
+2025-02-09,Headphones,Electronics,7,40.42,282.94
+2024-11-23,Coffee Maker,Home & Kitchen,1,246.8,246.8
+2025-03-07,Headphones,Electronics,3,476.18,1428.54
+2024-06-11,Sneakers,Clothing,3,458.91,1376.73
+2024-04-03,Headphones,Electronics,3,379.24,1137.72
+2024-12-01,Sneakers,Clothing,8,423.63,3389.04
+2024-05-24,Laptop,Electronics,2,84.22,168.44
+2024-08-23,Headphones,Electronics,8,301.29,2410.32
+2025-03-17,Headphones,Electronics,8,364.85,2918.8
+2024-12-17,Smartphone,Electronics,8,343.21,2745.68
+2024-10-14,T-Shirt,Clothing,5,459.05,2295.25
+2024-08-04,Coffee Maker,Home & Kitchen,5,93.54,467.7
+2025-02-28,Jeans,Clothing,8,250.35,2002.8
+2024-06-24,Blender,Home & Kitchen,10,338.61,3386.1
+2024-04-01,Laptop,Electronics,5,447.9,2239.5
+2025-02-08,Jeans,Clothing,7,467.97,3275.79
+2025-02-18,Jeans,Clothing,3,385.55,1156.65
+2024-05-05,Microwave,Home & Kitchen,5,144.7,723.5
+2024-09-11,Sneakers,Clothing,8,437.83,3502.64
+2025-01-31,Microwave,Home & Kitchen,2,94.74,189.48
+2024-12-14,Smartphone,Electronics,9,295.19,2656.71
+2024-09-13,Sneakers,Clothing,3,235.01,705.03
+2025-03-23,Laptop,Electronics,8,150.64,1205.12
+2024-08-27,Blender,Home & Kitchen,8,188.36,1506.88
+2024-10-02,Jeans,Clothing,6,65.78,394.68
+2024-05-26,Headphones,Electronics,8,118.82,950.56
+2024-07-14,Laptop,Electronics,6,186.88,1121.28
+2024-12-07,Blender,Home & Kitchen,4,491.57,1966.28
+2024-10-14,T-Shirt,Clothing,2,423.4,846.8
+2025-01-06,Headphones,Electronics,7,475.95,3331.65
+2024-07-23,Sneakers,Clothing,1,250.0,250.0
+2024-08-17,T-Shirt,Clothing,5,129.26,646.3
+2025-01-11,Smartphone,Electronics,8,390.77,3126.16
+2024-04-28,Blender,Home & Kitchen,5,194.87,974.35
+2025-01-13,Sneakers,Clothing,1,451.88,451.88
+2024-12-17,Sneakers,Clothing,6,56.15,336.9
+2025-02-25,Blender,Home & Kitchen,4,262.18,1048.72
+2024-07-29,Sneakers,Clothing,10,433.72,4337.2
+2025-03-15,Jeans,Clothing,3,357.23,1071.69
+2025-03-19,Jeans,Clothing,7,166.63,1166.41
+2024-12-31,Blender,Home & Kitchen,10,325.15,3251.5
+2024-12-14,Microwave,Home & Kitchen,1,345.15,345.15
+2024-09-10,Jeans,Clothing,3,283.24,849.72
+2025-02-11,Microwave,Home & Kitchen,5,228.06,1140.3
+2024-12-26,Headphones,Electronics,10,152.91,1529.1
+2024-10-02,Blender,Home & Kitchen,5,144.08,720.4
+2024-08-02,Sneakers,Clothing,3,134.73,404.19
+2024-05-26,Microwave,Home & Kitchen,7,83.5,584.5
+2024-04-02,Jeans,Clothing,5,493.25,2466.25
+2024-04-02,Sneakers,Clothing,6,143.92,863.52
+2025-01-06,Jeans,Clothing,3,52.45,157.35
+2025-03-17,Sneakers,Clothing,9,233.06,2097.54
+2025-01-13,Headphones,Electronics,4,294.47,1177.88
+2024-05-21,Coffee Maker,Home & Kitchen,3,387.11,1161.33
+2025-01-22,Headphones,Electronics,6,136.68,820.08
+2024-07-16,Smartphone,Electronics,10,233.71,2337.1
+2024-03-29,Sneakers,Clothing,5,300.77,1503.85
+2024-08-16,Sneakers,Clothing,4,410.17,1640.68
+2025-01-25,Blender,Home & Kitchen,8,271.23,2169.84
+2024-08-23,Jeans,Clothing,4,178.49,713.96
+2024-10-12,Headphones,Electronics,5,210.08,1050.4
+2025-03-19,Blender,Home & Kitchen,10,84.66,846.6
+2025-02-11,Smartphone,Electronics,8,449.92,3599.36
+2024-09-30,Coffee Maker,Home & Kitchen,5,171.47,857.35
+2025-02-06,Microwave,Home & Kitchen,6,112.27,673.62
+2025-03-05,Laptop,Electronics,3,179.02,537.06
+2024-11-30,Headphones,Electronics,8,34.79,278.32
+2024-06-04,Coffee Maker,Home & Kitchen,7,156.0,1092.0
+2024-10-05,Laptop,Electronics,8,83.91,671.28
+2024-12-07,T-Shirt,Clothing,10,197.75,1977.5
+2025-01-30,Smartphone,Electronics,10,498.87,4988.7
+2024-11-15,Blender,Home & Kitchen,8,241.27,1930.16
+2024-03-29,Coffee Maker,Home & Kitchen,7,397.27,2780.89
+2024-09-18,Headphones,Electronics,6,281.99,1691.94
+2024-12-04,Headphones,Electronics,10,359.51,3595.1
+2024-04-06,T-Shirt,Clothing,5,388.18,1940.9
+2024-03-29,T-Shirt,Clothing,1,492.11,492.11
+2024-12-06,Coffee Maker,Home & Kitchen,7,177.85,1244.95
+2024-06-05,Smartphone,Electronics,7,430.06,3010.42
+2024-08-13,Jeans,Clothing,3,192.86,578.58
+2024-06-03,Smartphone,Electronics,4,313.9,1255.6
+2025-03-11,Microwave,Home & Kitchen,9,24.06,216.54
+2024-11-14,Microwave,Home & Kitchen,2,276.03,552.06
+2024-03-30,Smartphone,Electronics,8,462.83,3702.64
+2024-09-03,Coffee Maker,Home & Kitchen,6,249.48,1496.88
+2024-08-08,Smartphone,Electronics,7,120.76,845.32
+2024-10-05,Headphones,Electronics,7,23.38,163.66
+2024-04-28,Jeans,Clothing,4,65.49,261.96
+2024-07-08,Coffee Maker,Home & Kitchen,7,327.42,2291.94
+2024-11-03,Headphones,Electronics,4,201.6,806.4
+2024-09-07,Microwave,Home & Kitchen,5,342.0,1710.0
+2024-07-14,Blender,Home & Kitchen,5,36.46,182.3
+2025-01-11,Headphones,Electronics,3,490.94,1472.82
+2024-08-20,Coffee Maker,Home & Kitchen,1,445.34,445.34
+2025-01-17,Laptop,Electronics,8,413.51,3308.08
+2025-03-05,Laptop,Electronics,3,118.28,354.84
+2024-05-20,Jeans,Clothing,7,84.94,594.58
+2025-03-17,Headphones,Electronics,7,269.92,1889.44
+2025-02-13,Coffee Maker,Home & Kitchen,7,472.16,3305.12
+2024-10-17,Jeans,Clothing,4,424.22,1696.88
+2024-06-13,Sneakers,Clothing,3,381.3,1143.9
+2025-02-24,Coffee Maker,Home & Kitchen,6,442.17,2653.02
+2025-03-05,T-Shirt,Clothing,1,46.88,46.88
+2024-06-29,Laptop,Electronics,7,106.2,743.4
+2024-06-10,Blender,Home & Kitchen,3,108.89,326.67
+2024-08-26,Laptop,Electronics,5,476.39,2381.95
+2024-09-24,Headphones,Electronics,9,223.12,2008.08
+2024-08-26,Blender,Home & Kitchen,2,363.31,726.62
+2024-11-01,Sneakers,Clothing,4,292.69,1170.76
+2024-06-29,Laptop,Electronics,10,203.67,2036.7
+2024-06-03,Sneakers,Clothing,7,105.3,737.1
+2024-05-01,Headphones,Electronics,10,94.86,948.6
+2025-02-13,Coffee Maker,Home & Kitchen,7,127.38,891.66
+2024-05-07,T-Shirt,Clothing,1,354.95,354.95
+2024-07-23,Microwave,Home & Kitchen,8,489.87,3918.96
+2025-03-18,Blender,Home & Kitchen,3,289.96,869.88
+2024-12-08,Laptop,Electronics,2,314.06,628.12
+2024-11-09,Blender,Home & Kitchen,9,231.42,2082.78
+2024-08-02,T-Shirt,Clothing,6,359.82,2158.92
+2024-06-06,Microwave,Home & Kitchen,10,255.04,2550.4
+2024-07-21,Smartphone,Electronics,10,352.37,3523.7
+2024-12-09,Microwave,Home & Kitchen,9,474.79,4273.11
+2024-08-24,Headphones,Electronics,3,346.91,1040.73
+2024-04-12,Microwave,Home & Kitchen,5,249.98,1249.9
+2024-10-05,Coffee Maker,Home & Kitchen,2,83.9,167.8
+2024-12-23,Sneakers,Clothing,2,392.56,785.12
+2025-03-21,Laptop,Electronics,3,156.63,469.89
+2024-04-23,Blender,Home & Kitchen,3,343.83,1031.49
+2024-09-05,Laptop,Electronics,1,26.54,26.54
+2025-01-19,Sneakers,Clothing,8,103.23,825.84
+2024-07-27,Microwave,Home & Kitchen,5,379.92,1899.6
+2024-10-23,Sneakers,Clothing,10,326.91,3269.1
+2024-04-01,Sneakers,Clothing,10,392.05,3920.5
+2024-06-11,Jeans,Clothing,2,248.3,496.6
+2024-12-28,Blender,Home & Kitchen,6,110.73,664.38
+2024-08-30,Blender,Home & Kitchen,4,207.3,829.2
+2025-03-04,Coffee Maker,Home & Kitchen,6,429.08,2574.48
+2024-05-27,Laptop,Electronics,1,65.87,65.87
+2024-04-25,Headphones,Electronics,4,66.93,267.72
+2024-06-22,Headphones,Electronics,7,170.85,1195.95
+2024-05-22,Jeans,Clothing,5,179.97,899.85
+2024-06-18,T-Shirt,Clothing,1,317.55,317.55
+2024-09-24,Headphones,Electronics,6,329.31,1975.86
+2024-12-23,Laptop,Electronics,4,74.15,296.6
+2024-03-28,Blender,Home & Kitchen,7,328.24,2297.68
+2025-01-13,Headphones,Electronics,2,459.09,918.18
+2024-12-24,Laptop,Electronics,2,133.73,267.46
+2024-05-01,Microwave,Home & Kitchen,3,186.5,559.5
+2024-03-30,Coffee Maker,Home & Kitchen,4,427.42,1709.68
+2025-02-27,Smartphone,Electronics,1,10.19,10.19
+2024-08-09,Smartphone,Electronics,10,15.22,152.2
+2024-10-27,T-Shirt,Clothing,2,245.58,491.16
+2025-01-12,Jeans,Clothing,1,33.47,33.47
+2024-05-19,Blender,Home & Kitchen,4,84.06,336.24
+2024-10-23,Headphones,Electronics,7,104.53,731.71
+2024-07-02,Laptop,Electronics,9,375.88,3382.92
+2024-04-08,Laptop,Electronics,6,218.62,1311.72
+2024-09-30,Laptop,Electronics,3,20.92,62.76
+2024-06-28,Blender,Home & Kitchen,9,298.23,2684.07
+2024-11-11,Smartphone,Electronics,8,280.78,2246.24
+2024-05-15,Blender,Home & Kitchen,8,349.0,2792.0
+2024-08-05,Smartphone,Electronics,1,108.52,108.52
+2024-07-22,Sneakers,Clothing,3,470.07,1410.21
+2024-07-06,Blender,Home & Kitchen,7,98.95,692.65
+2025-01-04,Laptop,Electronics,6,454.95,2729.7
+2024-06-11,Microwave,Home & Kitchen,1,41.16,41.16
+2024-11-26,Laptop,Electronics,4,144.47,577.88
+2024-10-30,Microwave,Home & Kitchen,5,49.07,245.35
+2025-03-22,Sneakers,Clothing,8,419.23,3353.84
+2024-04-09,Coffee Maker,Home & Kitchen,7,318.21,2227.47
+2024-09-17,Blender,Home & Kitchen,7,249.87,1749.09
+2025-01-09,T-Shirt,Clothing,1,374.31,374.31
+2024-10-23,Coffee Maker,Home & Kitchen,5,148.15,740.75
+2025-03-07,Laptop,Electronics,9,326.4,2937.6
