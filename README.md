@@ -1,15 +1,18 @@
 # Guapo
  A tool for data cleaning, handling, analysis and visualization. Work on numeric data, text, dates, geospatial data and more.
- Created by Alex Mees
+
+
+
+
 
 ## Features
 ### Data Import ###
 Accepts the following data types:
 - CSV, TSV (or custom delimiter files)
-- EXCEL (XLSX)
-- JSON
-- SQL
-- KML
+- EXCEL (XLSX) (comming soon)
+- JSON (comming soon)
+- SQL (comming soon)
+- KML (comming soon)
 
 Automatic delimiter detection
 Automatic data type and formatting detection
@@ -26,11 +29,11 @@ Data splitting/merging
 
 ### Data Export ###
 Can export to:
-- CSV, TSV (or custom delimiter files)
-- EXCEL (XLSX)
-- JSON
-- SQL
-- KML
+- CSV, TSV (or custom delimiter files) (comming soon)
+- EXCEL (XLSX) (comming soon)
+- JSON (comming soon)
+- SQL (comming soon)
+- KML (comming soon)
 
 ### Data Analysis ###
 Data statistical summary
