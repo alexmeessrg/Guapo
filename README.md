@@ -1,9 +1,7 @@
 # Guapo
  A tool for data cleaning, handling, analysis and visualization. Work on numeric data, text, dates, geospatial data and more.
-
-
-
-
+![GUI for app](media/guapo_GUI.png)
+![GUI for app](media/guapo_GUI2.png)
 
 ## Features
 ### Data Import ###
